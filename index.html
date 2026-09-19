@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>看图猜电影</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #141B33;
+    --bg-hi: #26346A;
+    --ink: #1B1D2A;
+    --light: #F1F0EA;
+    --dim: #9AA3C4;
+    --line: rgba(241, 240, 234, .16);
+    --display: "ZCOOL XiaoWei", "Songti SC", "STSong", "Noto Serif SC", serif;
+    --body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: var(--bg);
+    background-image: radial-gradient(120% 70% at 50% -20%, var(--bg-hi), transparent 60%);
+    background-repeat: no-repeat;
+    color: var(--light);
+    font-family: var(--body);
+    line-height: 1.6;
+  }
+  :focus-visible { outline: 3px solid var(--light); outline-offset: 3px; }
+
+  .screen { max-width: 980px; margin: 0 auto; padding: 36px 20px 56px; }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    font: inherit; font-size: 18px; font-weight: 700;
+    padding: 14px 36px; border: 0; border-radius: 999px;
+    background: var(--light); color: var(--ink); cursor: pointer;
+    transition: transform .12s, opacity .2s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: none; }
+  .btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+  .btn.ghost {
+    background: transparent; color: var(--light);
+    border: 1px solid var(--line); font-size: 15px; font-weight: 500; padding: 8px 18px;
+  }
+
+  /* ---------- pick screen ---------- */
+  .masthead h1 {
+    margin: 0 0 10px;
+    font-family: var(--display); font-weight: 400;
+    font-size: clamp(44px, 9vw, 80px); line-height: 1.05;
+  }
+  .masthead p { margin: 0 0 34px; color: var(--dim); font-size: 17px; max-width: 34em; }
+
+  .tickets {
+    list-style: none; margin: 0; padding: 10px 0 0;
+    display: grid; gap: 22px 18px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  }
+  .tk-wrap {
+    position: relative;
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .35));
+    transition: transform .18s ease;
+  }
+  .tk-wrap:hover { transform: translateY(-3px); }
+  .tk-wrap.on { transform: translateY(-8px) rotate(-1.4deg); }
+  .tk-wrap:has(.tk:focus-visible) { outline: 3px solid var(--light); outline-offset: 5px; border-radius: 6px; }
+  .tk-wrap.on::after {
+    content: "已选";
+    position: absolute; top: 12px; right: 14px;
+    width: 46px; height: 46px; display: grid; place-items: center;
+    border: 2px solid var(--ink); border-radius: 50%;
+    color: var(--ink); font-size: 14px; font-weight: 700;
+    transform: rotate(12deg); pointer-events: none;
+  }
+  .tk {
+    appearance: none; border: 0; width: 100%; min-height: 148px;
+    padding: 18px 22px 14px; text-align: left; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
+    font: inherit; color: var(--ink); background: var(--paper);
+    -webkit-mask:
+      radial-gradient(circle 11px at 0 50%, #0000 97%, #000) left / 51% 100% no-repeat,
+      radial-gradient(circle 11px at 100% 50%, #0000 97%, #000) right / 51% 100% no-repeat;
+            mask:
+      radial-gradient(circle 11px at 0 50%, #0000 97%, #000) left / 51% 100% no-repeat,
+      radial-gradient(circle 11px at 100% 50%, #0000 97%, #000) right / 51% 100% no-repeat;
+  }
+  .tk:focus-visible { outline: none; }
+  .tk .emo { font-size: 36px; line-height: 1.1; }
+  .tk .nm { font-family: var(--display); font-size: 25px; line-height: 1.2; }
+  .tk .ct { font-size: 13px; opacity: .7; padding-top: 8px; border-top: 2px dashed rgba(27, 29, 42, .35); }
+
+  .pick-bar {
+    margin-top: 44px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  }
+  #pickStatus { color: var(--dim); font-size: 16px; }
+
+  /* ---------- play screen ---------- */
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+  .progress { display: flex; align-items: center; gap: 14px; color: var(--dim); font-size: 15px; }
+  .frames { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; }
+  .frames li { width: 30px; height: 20px; border-radius: 3px; background: rgba(255, 255, 255, .14); transition: background .2s; }
+  .frames li.done { background: rgba(241, 240, 234, .55); }
+  .frames li.now { background: var(--light); }
+
+  .stage {
+    position: relative; display: grid; place-items: center; overflow: hidden;
+    height: min(64vh, 660px); height: min(64dvh, 660px); min-height: 260px;
+    border: 1px solid var(--line); border-radius: 10px; background: #0A0F20;
+  }
+  .stage img { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .35s; }
+  .stage img.ready { opacity: 1; }
+  .stage .msg { position: absolute; padding: 20px; color: var(--dim); text-align: center; }
+  .controls { margin-top: 24px; display: flex; justify-content: center; }
+
+  /* ---------- reveal ticket ---------- */
+  .reveal {
+    position: fixed; inset: 0; z-index: 10; padding: 20px;
+    display: grid; place-items: center;
+    background: rgba(8, 11, 24, .74);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .reveal-box { width: min(560px, 100%); display: flex; flex-direction: column; align-items: center; gap: 28px; }
+  .ticket-wrap {
+    width: 100%; transform: rotate(-1deg); transform-origin: 50% 0;
+    filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .5));
+    animation: print .55s cubic-bezier(.2, .9, .3, 1.15) both;
+  }
+  @keyframes print {
+    from { transform: translateY(-40px) rotate(-5deg) scale(.95); opacity: 0; }
+    to   { transform: rotate(-1deg); opacity: 1; }
+  }
+  .ticket {
+    --stub: 136px; --r: 13px;
+    display: grid; grid-template-columns: 1fr var(--stub);
+    background: var(--paper); color: var(--ink);
+    -webkit-mask:
+      radial-gradient(circle var(--r) at calc(100% - var(--stub)) 0, #0000 97%, #000) top / 100% 51% no-repeat,
+      radial-gradient(circle var(--r) at calc(100% - var(--stub)) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+            mask:
+      radial-gradient(circle var(--r) at calc(100% - var(--stub)) 0, #0000 97%, #000) top / 100% 51% no-repeat,
+      radial-gradient(circle var(--r) at calc(100% - var(--stub)) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+  }
+  .ticket-main { padding: 28px 22px 28px 30px; min-height: 160px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .ticket-main .from { margin: 0; font-size: 14px; opacity: .75; }
+  .ticket-main h2 {
+    margin: 0; font-family: var(--display); font-weight: 400;
+    font-size: clamp(26px, 5.4vw, 38px); line-height: 1.22; text-wrap: balance;
+  }
+  .ticket-stub {
+    border-left: 2px dashed rgba(27, 29, 42, .4);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px;
+  }
+  .ticket-stub small { font-size: 13px; opacity: .75; }
+  .ticket-stub strong { font-family: var(--display); font-weight: 400; font-size: 36px; line-height: 1; }
+
+  /* ---------- end screen ---------- */
+  .end-title { margin: 0 0 6px; font-family: var(--display); font-weight: 400; font-size: clamp(44px, 9vw, 72px); line-height: 1.05; }
+  .end-sub { margin: 0 0 28px; color: var(--dim); }
+  .recap { list-style: none; margin: 0 0 36px; padding: 0; max-width: 620px; display: grid; gap: 10px; }
+  .recap li {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 14px 18px; background: rgba(255, 255, 255, .06);
+    border-left: 8px solid var(--paper); border-radius: 4px;
+  }
+  .recap .t { font-size: 17px; }
+  .recap .y { color: var(--dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+
+  @media (max-width: 520px) {
+    .screen { padding-top: 24px; }
+    .tickets { grid-template-columns: repeat(2, 1fr); gap: 20px 14px; }
+    .tk { min-height: 132px; padding: 14px 16px 12px; }
+    .tk .nm { font-size: 21px; }
+    .ticket { --stub: 100px; }
+    .ticket-main { padding: 22px 14px 22px 22px; }
+    .ticket-stub strong { font-size: 30px; }
+    .btn { width: 100%; }
+    .btn.ghost { width: auto; }
+    .controls { display: block; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 1. 选主题 -->
+<section id="pick" class="screen">
+  <header class="masthead">
+    <h1>看图猜电影</h1>
+    <p>选两个主题，从里面随机抽 5 张剧照。先看图猜片名，再点下一张揭晓答案。</p>
+  </header>
+  <ul class="tickets" id="themeGrid"></ul>
+  <div class="pick-bar">
+    <button class="btn" id="startBtn" disabled>开始放映</button>
+    <span id="pickStatus" aria-live="polite"></span>
+  </div>
+</section>
+
+<!-- 2. 游戏 -->
+<section id="play" class="screen" hidden>
+  <div class="topbar">
+    <button class="btn ghost" id="quitBtn">换主题</button>
+    <div class="progress">
+      <span id="counter"></span>
+      <ol class="frames" id="frames" aria-hidden="true"></ol>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="msg" id="stageMsg">加载中…</div>
+    <img id="still" alt="电影剧照">
+  </div>
+  <div class="controls">
+    <button class="btn" id="nextBtn">下一张</button>
+  </div>
+
+  <!-- 揭晓：电影票 -->
+  <div class="reveal" id="reveal" role="dialog" aria-modal="true" aria-labelledby="revTitle" hidden>
+    <div class="reveal-box">
+      <div class="ticket-wrap" id="ticketWrap">
+        <div class="ticket">
+          <div class="ticket-main">
+            <p class="from" id="revFrom"></p>
+            <h2 id="revTitle"></h2>
+          </div>
+          <div class="ticket-stub">
+            <small>上映</small>
+            <strong id="revYear"></strong>
+          </div>
+        </div>
+      </div>
+      <button class="btn" id="revNext">下一张</button>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 结束 -->
+<section id="end" class="screen" hidden>
+  <h2 class="end-title">散场了</h2>
+  <p class="end-sub">这一局的 5 部片子</p>
+  <ol class="recap" id="recap"></ol>
+  <div class="row">
+    <button class="btn" id="againBtn">再来一局</button>
+    <button class="btn ghost" id="homeBtn">换主题</button>
+  </div>
+</section>
+
+<script>
+/* =====================================================================
+   设置区
+   图片放在：images/<主题id>/01.jpg ~ 10.jpg
+   编号 = 下面每个主题里电影的顺序（第 1 部对应 01，第 10 部对应 10）
+   例：images/marvel/01.jpg 就是《复仇者联盟4：终局之战》的剧照
+   ===================================================================== */
+const IMAGE_DIR  = 'images';
+const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp'];  // 会按顺序尝试；只用一种格式的话可以删到只剩一个
+const ROUNDS = 5;   // 每局抽几张
+const PICKS  = 2;   // 要选几个主题
+
+const THEMES = [
+  { id: 'marvel', emoji: '🦸', name: '漫威专区', color: '#E5566B', movies: [
+    ['复仇者联盟4：终局之战', 2019],
+    ['复仇者联盟3：无限战争', 2018],
+    ['蜘蛛侠：英雄无归', 2021],
+    ['复仇者联盟', 2012],
+    ['复仇者联盟2：奥创纪元', 2015],
+    ['黑豹', 2018],
+    ['死侍与金刚狼', 2024],
+    ['钢铁侠3', 2013],
+    ['美国队长3：内战', 2016],
+    ['蚁人', 2015],
+  ]},
+  { id: 'hk', emoji: '🇭🇰', name: '港片专区', color: '#F5C048', movies: [
+    ['无间道', 2002],
+    ['功夫', 2004],
+    ['少林足球', 2001],
+    ['英雄本色', 1986],
+    ['警察故事', 1985],
+    ['A计划', 1983],
+    ['赌神', 1989],
+    ['霸王别姬', 1993],
+    ['甜蜜蜜', 1996],
+    ['食神', 1996],
+  ]},
+  { id: 'world', emoji: '🌍', name: '世界名片', color: '#62AEEA', movies: [
+    ['泰坦尼克号', 1997],
+    ['阿凡达', 2009],
+    ['闻香识女人', 1992],
+    ['哈利·波特与魔法石', 2001],
+    ['教父', 1972],
+    ['肖申克的救赎', 1994],
+    ['黑客帝国', 1999],
+    ['侏罗纪公园', 1993],
+    ['阿甘正传', 1994],
+    ['绿皮书', 2018],
+  ]},
+  { id: 'anime', emoji: '🌸', name: '动漫电影专区', color: '#F594BC', movies: [
+    ['你的名字', 2016],
+    ['千与千寻', 2001],
+    ['鬼灭之刃：无限列车篇', 2020],
+    ['哈尔的移动城堡', 2004],
+    ['天气之子', 2019],
+    ['龙珠超布罗利', 2018],
+    ['龙猫', 1988],
+    ['航海王：红发歌姬', 2022],
+    ['灌篮高手 The First Slam Dunk', 2022],
+    ['名侦探柯南：贝克街的亡灵', 2002],
+  ]},
+  { id: 'china', emoji: '🇨🇳', name: '中国内地专区', color: '#F2854A', movies: [
+    ['哪吒之魔童闹海', 2025],
+    ['战狼2', 2017],
+    ['你好，李焕英', 2021],
+    ['西红柿首富', 2018],
+    ['流浪地球', 2019],
+    ['满江红', 2023],
+    ['唐人街探案', 2015],
+    ['美人鱼', 2016],
+    ['让子弹飞', 2010],
+    ['夏洛特烦恼', 2015],
+  ]},
+  { id: 'disney', emoji: '🏰', name: '迪士尼专区', color: '#A58BF0', movies: [
+    ['疯狂动物城2', 2025],
+    ['头脑特工队2', 2024],
+    ['怪兽电力公司', 2001],
+    ['冰雪奇缘2', 2019],
+    ['寻梦环游记', 2017],
+    ['飞屋环游记', 2009],
+    ['玩具总动员4', 2019],
+    ['赛车总动员', 2008],
+    ['海底总动员2：多莉去哪儿', 2016],
+    ['海洋奇缘2', 2024],
+  ]},
+  { id: 'europe', emoji: '🇪🇺', name: '欧洲电影专区', color: '#5CC49A', movies: [
+    ['海上钢琴师', 1998],
+    ['哈利·波特与魔法石', 2001],
+    ['憨豆特工', 2003],
+    ['这个杀手不太冷', 1994],
+    ['美丽人生', 1997],
+    ['波斯语课', 2020],
+    ['盗梦空间', 2010],
+    ['惊天魔盗团', 2013],
+    ['海蒂和爷爷', 2015],
+    ['触不可及', 2011],
+  ]},
+];
+
+/* =====================================================================
+   程序（一般不用改）
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const state = { picked: [], round: [], idx: 0, token: 0 };
+
+/* ---------- 选主题 ---------- */
+function renderThemes() {
+  const grid = $('themeGrid');
+  THEMES.forEach(t => {
+    const li = document.createElement('li');
+    li.className = 'tk-wrap';
+    li.dataset.id = t.id;
+    li.style.setProperty('--paper', t.color);
+    li.innerHTML =
+      '<button type="button" class="tk" aria-pressed="false">' +
+      '<span class="emo">' + t.emoji + '</span>' +
+      '<span class="nm">' + t.name + '</span>' +
+      '<span class="ct">' + t.movies.length + ' 部</span></button>';
+    li.querySelector('button').addEventListener('click', () => toggleTheme(t.id));
+    grid.appendChild(li);
+  });
+}
+
+function toggleTheme(id) {
+  const i = state.picked.indexOf(id);
+  if (i > -1) {
+    state.picked.splice(i, 1);
+  } else {
+    if (state.picked.length >= PICKS) state.picked.shift();   // 选第三个时，替换最早选的那个
+    state.picked.push(id);
+  }
+  syncPick();
+}
+
+function syncPick() {
+  document.querySelectorAll('.tk-wrap').forEach(el => {
+    const on = state.picked.includes(el.dataset.id);
+    el.classList.toggle('on', on);
+    el.querySelector('button').setAttribute('aria-pressed', on);
+  });
+  const names = state.picked.map(id => THEMES.find(t => t.id === id).name);
+  const left = PICKS - names.length;
+  $('pickStatus').textContent =
+    left === PICKS ? '先选 ' + PICKS + ' 个主题' :
+    left > 0 ? '已选 ' + names.join('、') + '，再选 ' + left + ' 个' :
+    names.join(' + ');
+  $('startBtn').disabled = left > 0;
+}
+
+/* ---------- 抽题 ---------- */
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildRound() {
+  const seen = new Set();   // 同名电影（比如两个主题都有《哈利·波特与魔法石》）只留一部
+  const pool = [];
+  state.picked.forEach(id => {
+    const t = THEMES.find(x => x.id === id);
+    t.movies.forEach(([title, year], k) => {
+      if (seen.has(title)) return;
+      seen.add(title);
+      pool.push({ title, year, theme: t, n: k + 1 });
+    });
+  });
+  return shuffle(pool).slice(0, ROUNDS);
+}
+
+/* ---------- 图片加载（自动尝试多种扩展名） ---------- */
+const imgCache = new Map();
+const imagePath = (item, ext) =>
+  IMAGE_DIR + '/' + item.theme.id + '/' + String(item.n).padStart(2, '0') + '.' + ext;
+
+function tryLoad(url) {
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => res(true);
+    im.onerror = () => res(false);
+    im.src = url;
+  });
+}
+
+function loadImage(item) {
+  const key = item.theme.id + '/' + item.n;
+  if (!imgCache.has(key)) {
+    imgCache.set(key, (async () => {
+      for (const ext of IMAGE_EXTS) {
+        const u = imagePath(item, ext);
+        if (await tryLoad(u)) return u;
+      }
+      return null;
+    })());
+  }
+  return imgCache.get(key);
+}
+
+/* ---------- 游戏流程 ---------- */
+function show(name) {
+  ['pick', 'play', 'end'].forEach(n => { $(n).hidden = n !== name; });
+  window.scrollTo(0, 0);
+}
+
+function startGame() {
+  state.round = buildRound();
+  state.idx = 0;
+  state.token++;
+  state.round.forEach(loadImage);   // 提前把 5 张都加载好
+  show('play');
+  showRound();
+  $('nextBtn').focus();
+}
+
+function renderFrames() {
+  const ol = $('frames');
+  ol.innerHTML = '';
+  state.round.forEach((_, i) => {
+    const li = document.createElement('li');
+    li.className = i < state.idx ? 'done' : i === state.idx ? 'now' : '';
+    ol.appendChild(li);
+  });
+  $('counter').textContent = '第 ' + (state.idx + 1) + ' 张 / 共 ' + state.round.length + ' 张';
+}
+
+async function showRound() {
+  const item = state.round[state.idx];
+  const token = ++state.token;
+  const still = $('still'), msg = $('stageMsg');
+  renderFrames();
+  $('reveal').hidden = true;
+  still.classList.remove('ready');
+  still.removeAttribute('src');
+  still.alt = '第 ' + (state.idx + 1) + ' 张电影剧照';
+  msg.hidden = false;
+  msg.textContent = '加载中…';
+
+  const url = await loadImage(item);
+  if (token !== state.token) return;   // 期间已经换题或退出
+  if (!url) {
+    msg.textContent = '找不到图片：' + imagePath(item, IMAGE_EXTS[0]);
+    return;
+  }
+  still.onload = () => { msg.hidden = true; still.classList.add('ready'); };
+  still.src = url;
+}
+
+function reveal() {
+  const it = state.round[state.idx];
+  const wrap = $('ticketWrap');
+  wrap.style.setProperty('--paper', it.theme.color);
+  $('revFrom').textContent = it.theme.emoji + ' ' + it.theme.name;
+  $('revTitle').textContent = '《' + it.title + '》';
+  $('revYear').textContent = it.year;
+  $('revNext').textContent = state.idx === state.round.length - 1 ? '看结果' : '下一张';
+  wrap.style.animation = 'none';
+  void wrap.offsetWidth;            // 让电影票每次都重新“打印”一遍
+  wrap.style.animation = '';
+  $('reveal').hidden = false;
+  $('revNext').focus();
+}
+
+function advance() {
+  $('reveal').hidden = true;
+  state.idx++;
+  if (state.idx >= state.round.length) return showEnd();
+  showRound();
+  $('nextBtn').focus();
+}
+
+function showEnd() {
+  state.token++;
+  const ol = $('recap');
+  ol.innerHTML = '';
+  state.round.forEach(it => {
+    const li = document.createElement('li');
+    li.style.setProperty('--paper', it.theme.color);
+    const t = document.createElement('span');
+    t.className = 't';
+    t.textContent = it.theme.emoji + ' 《' + it.title + '》';
+    const y = document.createElement('span');
+    y.className = 'y';
+    y.textContent = it.year;
+    li.append(t, y);
+    ol.appendChild(li);
+  });
+  show('end');
+  $('againBtn').focus();
+}
+
+function goHome() {
+  state.token++;
+  $('reveal').hidden = true;
+  show('pick');
+}
+
+/* ---------- 事件 ---------- */
+$('startBtn').addEventListener('click', startGame);
+$('nextBtn').addEventListener('click', reveal);
+$('revNext').addEventListener('click', advance);
+$('quitBtn').addEventListener('click', goHome);
+$('againBtn').addEventListener('click', startGame);
+$('homeBtn').addEventListener('click', goHome);
+
+renderThemes();
+syncPick();
+</script>
+</body>
+</html>
