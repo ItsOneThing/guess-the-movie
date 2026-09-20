@@ -200,6 +200,17 @@
   }
   .stage img.ready { opacity: 1; }
   .stage .msg { position: absolute; z-index: 2; padding: 20px; color: #D9D3FF; text-align: center; }
+    .stage .count {
+    position: absolute; inset: 0; z-index: 3; display: grid; place-items: center;
+    font-family: var(--display); font-size: clamp(96px, 24vw, 190px); line-height: 1; color: #fff;
+    text-shadow: 0 6px 0 rgba(0, 0, 0, .28);
+  }
+  .stage .count span { animation: pop .9s ease-out both; }
+  @keyframes pop {
+    from { transform: scale(.4); opacity: 0; }
+    30%  { transform: scale(1.12); opacity: 1; }
+    to   { transform: scale(1); opacity: .9; }
+  }
   .controls { margin-top: 30px; display: flex; justify-content: center; }
 
   /* ---------- reveal ticket ---------- */
@@ -347,6 +358,7 @@
     <div class="stage">
       <div class="bg" id="stageBg" aria-hidden="true"></div>
       <div class="msg" id="stageMsg"></div>
+            <div class="count" id="count" aria-hidden="true" hidden></div>
       <img id="still" alt="">
     </div>
   </div>
@@ -401,6 +413,7 @@
 const IMAGE_DIR  = 'images';
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp'];  // 会按顺序尝试；只用一种格式的话可以删到只剩一个
 const ROUNDS = 7;   // 每局抽几张
+const COUNTDOWN = 3;   // 出图前倒数几秒（改成 0 就是不倒数）
 const PICKS  = 2;   // 要选几个主题
 
 /* 页脚联系方式：改这里就行（中文 / 意大利语通用） */
@@ -769,25 +782,53 @@ function renderMsg() {
   el.textContent = m.k === 'loading' ? T().loading : T().missing(m.p);
 }
 
+/* 出图前倒数：3、2、1 */
+function countdown(token) {
+  const box = $('count');
+  return new Promise(resolve => {
+    let n = COUNTDOWN;
+    const tick = () => {
+      if (token !== state.token) return resolve(false);   // 期间换题或退出了
+      if (n <= 0) { box.hidden = true; return resolve(true); }
+      box.innerHTML = '';
+      const s = document.createElement('span');
+      s.textContent = n;
+      box.appendChild(s);
+      box.hidden = false;
+      n--;
+      setTimeout(tick, 1000);
+    };
+    tick();
+  });
+}
+
 async function showRound() {
   const item = state.round[state.idx];
   const token = ++state.token;
-  const still = $('still'), bg = $('stageBg');
+  const still = $('still'), bg = $('stageBg'), nextBtn = $('nextBtn');
   renderFrames();
   $('reveal').hidden = true;
+  $('count').hidden = true;
   still.classList.remove('ready');
   bg.classList.remove('ready');
   still.removeAttribute('src');
   bg.style.backgroundImage = '';
   still.alt = T().alt(state.idx + 1);
-  state.msg = { k: 'loading' };
+  nextBtn.disabled = true;
+  state.msg = null;
   renderMsg();
 
-  const url = await loadImage(item);
-  if (token !== state.token) return;   // 期间已经换题或退出
+  const loading = loadImage(item);                 // 倒数的同时在后台加载图片
+  if (COUNTDOWN > 0 && !(await countdown(token))) return;
+
+  state.msg = { k: 'loading' };
+  renderMsg();
+  const url = await loading;
+  if (token !== state.token) return;
   if (!url) {
     state.msg = { k: 'missing', p: imagePath(item, IMAGE_EXTS[0]) };
     renderMsg();
+    nextBtn.disabled = false;
     return;
   }
   still.onload = () => {
@@ -795,6 +836,8 @@ async function showRound() {
     renderMsg();
     still.classList.add('ready');
     bg.classList.add('ready');
+    nextBtn.disabled = false;
+    if (document.activeElement === document.body) nextBtn.focus();
   };
   bg.style.backgroundImage = 'url("' + url + '")';
   still.src = url;
