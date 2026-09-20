@@ -156,6 +156,30 @@
 
   .pick-bar { margin-top: 46px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
   #pickStatus { color: var(--dim); font-size: 16px; }
+  /* ---------- 抢答器：二维码 + 房间码 ---------- */
+.buzz {
+  margin-left: auto; display: flex; align-items: center; gap: 16px;
+  padding: 12px 20px 12px 12px; background: #fff;
+  border: 1.5px dashed rgba(46, 36, 83, .28); border-radius: 22px;
+  box-shadow: 0 3px 0 rgba(46, 36, 83, .1);
+}
+.qr {
+  flex: none; display: block; width: 96px; height: 96px; padding: 7px;
+  background: #fff; border: 1.5px solid var(--line); border-radius: 14px;
+  transition: transform .15s;
+}
+.qr:hover { transform: translateY(-2px) rotate(-2deg); }
+.qr svg { display: block; width: 100%; height: 100%; shape-rendering: crispEdges; }
+.buzz .code { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.buzz .code-t { font-size: 14px; color: var(--dim); }
+.buzz input {
+  width: 8.5em; max-width: 100%; padding: 2px 0;
+  font-family: var(--display); font-size: 32px; line-height: 1.2; color: var(--ink);
+  background: transparent; border: 0; border-radius: 0;
+  border-bottom: 2.5px dashed rgba(46, 36, 83, .35);
+}
+.buzz input::placeholder { font-size: 17px; color: rgba(46, 36, 83, .3); }
+.buzz input:focus-visible { outline: none; border-bottom: 2.5px solid var(--ink); }
 
   /* ---------- play screen ---------- */
   .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
@@ -313,6 +337,8 @@
     .btn.ghost { width: auto; }
     .controls { display: block; }
   }
+      .buzz { margin-left: 0; width: 100%; }
+    .buzz .code { flex: 1; }
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
     .spark { display: none; }
@@ -339,7 +365,15 @@
   <div class="pick-bar">
     <button class="btn" id="startBtn" data-i18n="start" disabled></button>
         <span id="pickStatus" aria-live="polite"></span>
-    <a class="btn ghost" href="https://buzzonk.com/" target="_blank" rel="noopener" data-i18n="buzz"></a>
+    <div class="buzz">
+  <a class="qr" id="qrLink" href="https://buzzonk.com/" target="_blank" rel="noopener">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" aria-hidden="true"><path stroke="#2e2453" d="M0 0.5h7m1 0h2m2 0h4m2 0h7m-25 1h1m5 0h1m2 0h7m2 0h1m5 0h1m-25 1h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h3m1 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h2m2 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m3 0h3m1 0h3m1 0h1m1 0h3m1 0h1m-25 1h1m5 0h1m1 0h1m1 0h4m1 0h1m2 0h1m5 0h1m-25 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-17 1h1m1 0h1m3 0h1m-14 1h1m1 0h1m1 0h4m4 0h1m1 0h5m1 0h2m1 0h1m-24 1h2m1 0h1m4 0h1m2 0h1m5 0h1m5 0h1m-24 1h4m1 0h5m1 0h1m3 0h4m3 0h2m-25 1h3m2 0h1m1 0h1m1 0h2m2 0h1m3 0h1m1 0h2m-20 1h2m1 0h3m2 0h2m3 0h5m2 0h1m1 0h2m-21 1h2m4 0h1m1 0h2m4 0h2m1 0h2m1 0h1m-25 1h1m4 0h2m2 0h1m1 0h4m1 0h2m1 0h2m1 0h1m1 0h1m-24 1h1m1 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m-24 1h4m2 0h3m2 0h1m1 0h1m1 0h8m-15 1h1m2 0h1m1 0h1m1 0h2m3 0h2m2 0h1m-25 1h7m1 0h2m3 0h1m1 0h2m1 0h1m1 0h2m1 0h2m-25 1h1m5 0h1m1 0h7m1 0h1m3 0h4m-24 1h1m1 0h3m1 0h1m2 0h2m2 0h2m1 0h6m2 0h1m-25 1h1m1 0h3m1 0h1m1 0h1m1 0h2m4 0h1m2 0h4m-23 1h1m1 0h3m1 0h1m3 0h2m1 0h1m1 0h3m1 0h2m1 0h1m1 0h1m-25 1h1m5 0h1m1 0h2m2 0h1m2 0h2m1 0h1m2 0h1m-22 1h7m2 0h4m2 0h2m2 0h1m3 0h2"/></svg>
+  </a>
+  <div class="code">
+    <span class="code-t" data-i18n="buzz"></span>
+    <input id="buzzCode" type="text" maxlength="16" autocomplete="off" spellcheck="false">
+  </div>
+</div>
   </div>
 </section>
 
@@ -426,7 +460,10 @@ const I18N = {
     title:    '看图猜电影',
     intro:    '选两个主题，从里面随机抽 7 张剧照。先看图猜片名，再点下一张揭晓答案。',
     start:    '开始放映',
-    buzz:     '🔔 打开抢答器',
+        buzz:     '🔔 扫码进入抢答器',
+    buzzCode: '抢答器房间码',
+    buzzPh:   '在这里写房间码',
+    buzzAria: '打开抢答器 buzzonk.com',
     change:   '换主题',
     next:     '下一张',
     result:   '看结果',
@@ -450,7 +487,10 @@ const I18N = {
     title:    'Indovina il film',
     intro:    'Scegli due temi: peschiamo 7 fotogrammi a caso. Guarda l’immagine e indovina il titolo, poi premi «Avanti» per scoprire la risposta.',
     start:    'Inizia la proiezione',
-    buzz:     '🔔 Apri il buzzer',
+        buzz:     '🔔 Scansiona per il buzzer',
+    buzzCode: 'Codice del buzzer',
+    buzzPh:   'Scrivi il codice qui',
+    buzzAria: 'Apri il buzzer buzzonk.com',
     change:   'Cambia tema',
     next:     'Avanti',
     result:   'Vedi il risultato',
@@ -627,6 +667,10 @@ function applyLang() {
     el.querySelector('.ct').textContent = t.count(th.movies.length);
     el.dataset.stamp = t.stamp;
   });
+    $('qrLink').setAttribute('aria-label', t.buzzAria);
+  $('qrLink').title = t.buzzAria;
+  $('buzzCode').placeholder = t.buzzPh;
+  $('buzzCode').setAttribute('aria-label', t.buzzCode);
   syncPick();
   if (!$('play').hidden) {
     renderFrames();
@@ -635,6 +679,15 @@ function applyLang() {
     if (!$('reveal').hidden) fillReveal();
   }
   if (!$('end').hidden) renderRecap();
+}
+  /* ---------- 抢答器房间码：自己写，刷新后还在 ---------- */
+function initBuzz() {
+  const input = $('buzzCode');
+  try { input.value = localStorage.getItem('buzzCode') || ''; } catch (e) {}
+  input.addEventListener('input', () => {
+    try { localStorage.setItem('buzzCode', input.value); } catch (e) {}
+  });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
 }
 
 /* ---------- 页脚 ---------- */
@@ -934,6 +987,7 @@ document.querySelectorAll('.lang button').forEach(b =>
 
 renderFooter();
 renderThemes();
+initBuzz();
 applyLang();
 </script>
 </body>
