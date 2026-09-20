@@ -6,85 +6,136 @@
 <title>看图猜电影</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #141B33;
-    --bg-hi: #26346A;
-    --ink: #1B1D2A;
-    --light: #F1F0EA;
-    --dim: #9AA3C4;
-    --line: rgba(241, 240, 234, .16);
-    --display: "ZCOOL XiaoWei", "Songti SC", "STSong", "Noto Serif SC", serif;
+    --milk: #F3EFFF;          /* 奶紫底色 */
+    --ink: #2E2453;           /* 深靛蓝：文字 / 主按钮 */
+    --ink-deep: #1B1436;      /* 按钮"厚度" */
+    --dim: #7A7398;
+    --line: rgba(46, 36, 83, .14);
+    --curtain: #E8607B;       /* 幕布玫瑰红 */
+    --screen: #1E1738;        /* 银幕深色 */
+    --display: "ZCOOL KuaiLe", "YouYuan", "幼圆", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
     --body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   }
+  /* 意大利语：换成同样圆润可爱、并且带重音字母的拉丁字体 */
+  html[lang="it"] {
+    --display: "Fredoka", "Nunito", "Trebuchet MS", system-ui, sans-serif;
+    --body: "Noto Sans SC", "Nunito", system-ui, sans-serif;
+  }
+  html[lang="it"] .masthead h1,
+  html[lang="it"] .tk .nm,
+  html[lang="it"] .ticket-main h2,
+  html[lang="it"] .ticket-stub strong,
+  html[lang="it"] .end-title { font-weight: 600; }
+  html[lang="it"] .masthead h1 { font-size: clamp(40px, 9vw, 74px); letter-spacing: -.01em; }
+  html[lang="it"] .end-title { font-size: clamp(40px, 9vw, 68px); }
+  html[lang="it"] .tk .nm { font-size: 21px; }
+  html[lang="it"] .tk-wrap.on::after { font-size: 11px; }
+  html[lang="it"] .btn { letter-spacing: .01em; }
+
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
-  html { color-scheme: dark; }
+  html { color-scheme: light; }
   body {
     margin: 0;
     min-height: 100vh;
     min-height: 100dvh;
-    background-color: var(--bg);
-    background-image: radial-gradient(120% 70% at 50% -20%, var(--bg-hi), transparent 60%);
-    background-repeat: no-repeat;
-    color: var(--light);
+    display: flex; flex-direction: column;
+    background-color: var(--milk);
+    background-image:
+      radial-gradient(60% 38% at 0% 0%, rgba(255, 143, 163, .25), transparent 70%),
+      radial-gradient(50% 36% at 100% 6%, rgba(120, 190, 255, .28), transparent 70%),
+      radial-gradient(rgba(46, 36, 83, .075) 1.3px, transparent 1.8px);
+    background-size: auto, auto, 22px 22px;
+    background-repeat: no-repeat, no-repeat, repeat;
+    color: var(--ink);
     font-family: var(--body);
     line-height: 1.6;
   }
-  :focus-visible { outline: 3px solid var(--light); outline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
-  .screen { max-width: 980px; margin: 0 auto; padding: 36px 20px 56px; }
+  .screen { flex: 1 0 auto; width: 100%; max-width: 980px; margin: 0 auto; padding: 24px 20px 36px; }
 
-  /* ---------- buttons ---------- */
+  /* ---------- 语言切换 ---------- */
+  .langbar {
+    flex-shrink: 0; width: 100%; max-width: 980px; margin: 0 auto;
+    padding: 18px 20px 0; display: flex; justify-content: flex-end;
+  }
+  .lang {
+    display: inline-flex; gap: 2px; padding: 4px;
+    background: #fff; border: 1.5px solid var(--line); border-radius: 999px;
+    box-shadow: 0 3px 0 rgba(46, 36, 83, .12);
+  }
+  .lang button {
+    font: inherit; font-size: 14px; font-weight: 500;
+    padding: 5px 16px; border: 0; border-radius: 999px;
+    background: transparent; color: var(--dim); cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .lang button:hover:not([aria-pressed="true"]) { color: var(--ink); }
+  .lang button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+
+  /* ---------- buttons：厚厚的、按下去会陷进去 ---------- */
   .btn {
-    font: inherit; font-size: 18px; font-weight: 700;
-    padding: 14px 36px; border: 0; border-radius: 999px;
-    background: var(--light); color: var(--ink); cursor: pointer;
-    transition: transform .12s, opacity .2s;
+    font: inherit; font-size: 18px; font-weight: 700; letter-spacing: .04em;
+    padding: 14px 40px; border: 0; border-radius: 999px;
+    background: var(--ink); color: #fff; cursor: pointer;
+    box-shadow: 0 5px 0 var(--ink-deep), 0 14px 22px rgba(46, 36, 83, .22);
+    transition: transform .12s, box-shadow .12s, opacity .2s;
   }
-  .btn:hover { transform: translateY(-2px); }
-  .btn:active { transform: none; }
-  .btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+  .btn:hover  { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink-deep), 0 18px 26px rgba(46, 36, 83, .24); }
+  .btn:active { transform: translateY(4px);  box-shadow: 0 1px 0 var(--ink-deep), 0 4px 8px rgba(46, 36, 83, .2); }
+  .btn:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: 0 5px 0 var(--ink-deep); }
   .btn.ghost {
-    background: transparent; color: var(--light);
-    border: 1px solid var(--line); font-size: 15px; font-weight: 500; padding: 8px 18px;
+    background: #fff; color: var(--ink); border: 1.5px solid var(--line);
+    font-size: 15px; font-weight: 500; letter-spacing: 0; padding: 8px 20px;
+    box-shadow: 0 3px 0 rgba(46, 36, 83, .14);
   }
+  .btn.ghost:hover  { box-shadow: 0 5px 0 rgba(46, 36, 83, .14); }
+  .btn.ghost:active { box-shadow: 0 0 0 rgba(46, 36, 83, .14); }
 
   /* ---------- pick screen ---------- */
+  .masthead { margin-bottom: 38px; }
   .masthead h1 {
-    margin: 0 0 10px;
+    margin: 0 0 14px;
     font-family: var(--display); font-weight: 400;
-    font-size: clamp(44px, 9vw, 80px); line-height: 1.05;
+    font-size: clamp(46px, 10vw, 84px); line-height: 1.1;
   }
-  .masthead p { margin: 0 0 34px; color: var(--dim); font-size: 17px; max-width: 34em; }
+  .masthead .hl {
+    padding: 0 .1em;
+    background: linear-gradient(transparent 62%, #FFD37A 62% 92%, transparent 92%);
+  }
+  .masthead p { margin: 0; color: var(--dim); font-size: 17px; max-width: 30em; }
 
   .tickets {
-    list-style: none; margin: 0; padding: 10px 0 0;
-    display: grid; gap: 22px 18px;
+    list-style: none; margin: 0; padding: 12px 0 0;
+    display: grid; gap: 26px 20px;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   }
   .tk-wrap {
     position: relative;
-    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .35));
-    transition: transform .18s ease;
+    filter: drop-shadow(0 12px 14px rgba(46, 36, 83, .18));
+    transition: transform .2s cubic-bezier(.3, 1.4, .5, 1);
   }
-  .tk-wrap:hover { transform: translateY(-3px); }
-  .tk-wrap.on { transform: translateY(-8px) rotate(-1.4deg); }
-  .tk-wrap:has(.tk:focus-visible) { outline: 3px solid var(--light); outline-offset: 5px; border-radius: 6px; }
+  .tk-wrap:hover { transform: translateY(-4px); }
+  .tk-wrap.on { transform: translateY(-10px) rotate(-2deg); }
+  .tk-wrap:has(.tk:focus-visible) { outline: 3px solid var(--ink); outline-offset: 5px; border-radius: 8px; }
   .tk-wrap.on::after {
-    content: "已选";
-    position: absolute; top: 12px; right: 14px;
-    width: 46px; height: 46px; display: grid; place-items: center;
-    border: 2px solid var(--ink); border-radius: 50%;
+    content: attr(data-stamp);
+    position: absolute; top: 14px; right: 16px;
+    width: 48px; height: 48px; display: grid; place-items: center;
+    border: 2px dashed var(--ink); border-radius: 50%;
     color: var(--ink); font-size: 14px; font-weight: 700;
     transform: rotate(12deg); pointer-events: none;
   }
   .tk {
-    appearance: none; border: 0; width: 100%; min-height: 148px;
-    padding: 18px 22px 14px; text-align: left; cursor: pointer;
-    display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
-    font: inherit; color: var(--ink); background: var(--paper);
+    appearance: none; border: 0; width: 100%; min-height: 156px;
+    padding: 16px 22px 14px; text-align: left; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+    font: inherit; color: var(--ink);
+    background: linear-gradient(155deg, rgba(255, 255, 255, .45), transparent 55%), var(--paper);
     -webkit-mask:
       radial-gradient(circle 11px at 0 50%, #0000 97%, #000) left / 51% 100% no-repeat,
       radial-gradient(circle 11px at 100% 50%, #0000 97%, #000) right / 51% 100% no-repeat;
@@ -93,44 +144,75 @@
       radial-gradient(circle 11px at 100% 50%, #0000 97%, #000) right / 51% 100% no-repeat;
   }
   .tk:focus-visible { outline: none; }
-  .tk .emo { font-size: 36px; line-height: 1.1; }
-  .tk .nm { font-family: var(--display); font-size: 25px; line-height: 1.2; }
-  .tk .ct { font-size: 13px; opacity: .7; padding-top: 8px; border-top: 2px dashed rgba(27, 29, 42, .35); }
-
-  .pick-bar {
-    margin-top: 44px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  .tk .emo {
+    width: 48px; height: 48px; display: grid; place-items: center;
+    border-radius: 50%; font-size: 27px; line-height: 1;
+    background: rgba(255, 255, 255, .72);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .95);
   }
+  .tk .nm { font-family: var(--display); font-size: 24px; line-height: 1.25; overflow-wrap: break-word; }
+  .tk .ct { font-size: 13px; opacity: .7; padding-top: 8px; border-top: 2px dashed rgba(46, 36, 83, .32); }
+
+  .pick-bar { margin-top: 46px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
   #pickStatus { color: var(--dim); font-size: 16px; }
 
   /* ---------- play screen ---------- */
-  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
   .progress { display: flex; align-items: center; gap: 14px; color: var(--dim); font-size: 15px; }
-  .frames { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; }
-  .frames li { width: 30px; height: 20px; border-radius: 3px; background: rgba(255, 255, 255, .14); transition: background .2s; }
-  .frames li.done { background: rgba(241, 240, 234, .55); }
-  .frames li.now { background: var(--light); }
+  .frames { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; align-items: center; }
+  .frames li { width: 24px; height: 10px; border-radius: 999px; background: rgba(46, 36, 83, .14); transition: background .2s, width .2s; }
+  .frames li.done { background: var(--curtain); }
+  .frames li.now  { background: var(--ink); width: 40px; }
 
+  /* 剧院：幕布 + 银幕。银幕比例固定，图片再怎么不一样大也不会把页面撑得跳来跳去 */
+  .theater {
+    --ar: 1.7778;                                   /* 16:9 */
+    width: min(100%, calc(62vh * var(--ar)));
+    width: min(100%, calc(62dvh * var(--ar)));
+    margin: 0 auto;
+  }
+  .valance {
+    height: 30px; margin-bottom: 6px; border-radius: 12px 12px 0 0;
+    background:
+      linear-gradient(var(--curtain), var(--curtain)) top / 100% 12px no-repeat,
+      radial-gradient(circle 17px at 50% 12px, var(--curtain) 97%, #0000) 0 0 / 36px 100% repeat-x;
+    filter: drop-shadow(0 4px 0 rgba(46, 36, 83, .14));
+  }
   .stage {
     position: relative; display: grid; place-items: center; overflow: hidden;
-    height: min(64vh, 660px); height: min(64dvh, 660px); min-height: 260px;
-    border: 1px solid var(--line); border-radius: 10px; background: #0A0F20;
+    aspect-ratio: var(--ar); width: 100%;
+    border: 5px solid #fff; border-radius: 22px; background: var(--screen);
+    box-shadow: 0 22px 40px rgba(46, 36, 83, .25);
   }
-  .stage img { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .35s; }
+  /* 模糊背景：把同一张图铺满并虚化，前景图完整显示（不裁切），空白处自然被"氛围光"填满 */
+  .stage .bg {
+    position: absolute; inset: -40px;
+    background-size: cover; background-position: center;
+    filter: blur(28px) saturate(1.25) brightness(.68);
+    opacity: 0; transition: opacity .4s;
+  }
+  .stage .bg.ready { opacity: 1; }
+  .stage img {
+    position: relative; z-index: 1;
+    width: 100%; height: 100%; object-fit: contain;
+    opacity: 0; transition: opacity .35s;
+  }
   .stage img.ready { opacity: 1; }
-  .stage .msg { position: absolute; padding: 20px; color: var(--dim); text-align: center; }
-  .controls { margin-top: 24px; display: flex; justify-content: center; }
+  .stage .msg { position: absolute; z-index: 2; padding: 20px; color: #D9D3FF; text-align: center; }
+  .controls { margin-top: 30px; display: flex; justify-content: center; }
 
   /* ---------- reveal ticket ---------- */
   .reveal {
     position: fixed; inset: 0; z-index: 10; padding: 20px;
     display: grid; place-items: center;
-    background: rgba(8, 11, 24, .74);
-    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    background: rgba(30, 23, 56, .62);
+    -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
   }
-  .reveal-box { width: min(560px, 100%); display: flex; flex-direction: column; align-items: center; gap: 28px; }
+  .reveal-box { width: min(560px, 100%); display: flex; flex-direction: column; align-items: center; gap: 30px; }
   .ticket-wrap {
+    position: relative;
     width: 100%; transform: rotate(-1deg); transform-origin: 50% 0;
-    filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .5));
+    filter: drop-shadow(0 20px 28px rgba(0, 0, 0, .4));
     animation: print .55s cubic-bezier(.2, .9, .3, 1.15) both;
   }
   @keyframes print {
@@ -140,7 +222,8 @@
   .ticket {
     --stub: 136px; --r: 13px;
     display: grid; grid-template-columns: 1fr var(--stub);
-    background: var(--paper); color: var(--ink);
+    background: linear-gradient(155deg, rgba(255, 255, 255, .5), transparent 55%), var(--paper);
+    color: var(--ink);
     -webkit-mask:
       radial-gradient(circle var(--r) at calc(100% - var(--stub)) 0, #0000 97%, #000) top / 100% 51% no-repeat,
       radial-gradient(circle var(--r) at calc(100% - var(--stub)) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
@@ -148,37 +231,69 @@
       radial-gradient(circle var(--r) at calc(100% - var(--stub)) 0, #0000 97%, #000) top / 100% 51% no-repeat,
       radial-gradient(circle var(--r) at calc(100% - var(--stub)) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
   }
-  .ticket-main { padding: 28px 22px 28px 30px; min-height: 160px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
-  .ticket-main .from { margin: 0; font-size: 14px; opacity: .75; }
+  .ticket-main { padding: 28px 22px 28px 30px; min-height: 168px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .ticket-main .from { margin: 0; font-size: 14px; opacity: .78; }
   .ticket-main h2 {
     margin: 0; font-family: var(--display); font-weight: 400;
-    font-size: clamp(26px, 5.4vw, 38px); line-height: 1.22; text-wrap: balance;
+    font-size: clamp(26px, 5.4vw, 38px); line-height: 1.22; text-wrap: balance; overflow-wrap: break-word;
   }
   .ticket-stub {
-    border-left: 2px dashed rgba(27, 29, 42, .4);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px;
+    border-left: 2px dashed rgba(46, 36, 83, .4);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px;
   }
-  .ticket-stub small { font-size: 13px; opacity: .75; }
+  .ticket-stub small { font-size: 13px; opacity: .78; }
   .ticket-stub strong { font-family: var(--display); font-weight: 400; font-size: 36px; line-height: 1; }
+  .barcode {
+    width: 74%; height: 16px; margin-top: 8px; opacity: .55;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px, var(--ink) 8px 11px, transparent 11px 13px);
+  }
+
+  /* 揭晓时的小烟花 */
+  .spark {
+    position: absolute; left: 50%; top: 50%;
+    font-style: normal; font-size: 22px; line-height: 1; pointer-events: none;
+    animation: spark .95s ease-out .25s both;
+  }
+  @keyframes spark {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
+    15%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(var(--rot)); }
+  }
 
   /* ---------- end screen ---------- */
-  .end-title { margin: 0 0 6px; font-family: var(--display); font-weight: 400; font-size: clamp(44px, 9vw, 72px); line-height: 1.05; }
-  .end-sub { margin: 0 0 28px; color: var(--dim); }
-  .recap { list-style: none; margin: 0 0 36px; padding: 0; max-width: 620px; display: grid; gap: 10px; }
+  .end-title { margin: 0 0 8px; font-family: var(--display); font-weight: 400; font-size: clamp(46px, 10vw, 76px); line-height: 1.1; }
+  .end-sub { margin: 0 0 30px; color: var(--dim); }
+  .recap { list-style: none; margin: 0 0 38px; padding: 0; max-width: 620px; display: grid; gap: 12px; }
   .recap li {
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    padding: 14px 18px; background: rgba(255, 255, 255, .06);
-    border-left: 8px solid var(--paper); border-radius: 4px;
+    padding: 14px 20px; background: #fff;
+    border-left: 10px solid var(--paper); border-radius: 16px;
+    box-shadow: 0 8px 18px rgba(46, 36, 83, .08);
   }
-  .recap .t { font-size: 17px; }
+  .recap .t { font-size: 17px; font-weight: 500; }
   .recap .y { color: var(--dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
 
+  /* ---------- 页脚 ---------- */
+  .foot { flex-shrink: 0; padding: 4px 20px 32px; text-align: center; color: var(--dim); font-size: 14px; }
+  .foot .pill {
+    display: inline-flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 8px; padding: 8px 20px;
+    border: 1.5px dashed rgba(46, 36, 83, .28); border-radius: 999px;
+    background: rgba(255, 255, 255, .7);
+  }
+  .foot b { color: var(--ink); font-weight: 700; }
+  .foot a { color: var(--ink); font-weight: 700; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+  @media (max-width: 600px) {
+    .theater { --ar: 1.3333; }            /* 手机上用 4:3，银幕更大 */
+    .stage { border-width: 4px; border-radius: 18px; }
+  }
   @media (max-width: 520px) {
-    .screen { padding-top: 24px; }
-    .tickets { grid-template-columns: repeat(2, 1fr); gap: 20px 14px; }
-    .tk { min-height: 132px; padding: 14px 16px 12px; }
-    .tk .nm { font-size: 21px; }
+    .screen { padding-top: 18px; }
+    .tickets { grid-template-columns: repeat(2, 1fr); gap: 22px 14px; }
+    .tk { min-height: 140px; padding: 14px 16px 12px; }
+    .tk .emo { width: 42px; height: 42px; font-size: 23px; }
+    .tk .nm, html[lang="it"] .tk .nm { font-size: 19px; }
     .ticket { --stub: 100px; }
     .ticket-main { padding: 22px 14px 22px 22px; }
     .ticket-stub strong { font-size: 30px; }
@@ -188,20 +303,29 @@
   }
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
+    .spark { display: none; }
   }
 </style>
 </head>
 <body>
 
+<!-- 语言切换：所有页面都在右上角 -->
+<div class="langbar">
+  <div class="lang" role="group" aria-label="Lingua / 语言">
+    <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+    <button type="button" data-lang="it" aria-pressed="false">Italiano</button>
+  </div>
+</div>
+
 <!-- 1. 选主题 -->
 <section id="pick" class="screen">
   <header class="masthead">
-    <h1>看图猜电影</h1>
-    <p>选两个主题，从里面随机抽 5 张剧照。先看图猜片名，再点下一张揭晓答案。</p>
+    <h1><span class="hl" data-i18n="title"></span></h1>
+    <p data-i18n="intro"></p>
   </header>
   <ul class="tickets" id="themeGrid"></ul>
   <div class="pick-bar">
-    <button class="btn" id="startBtn" disabled>开始放映</button>
+    <button class="btn" id="startBtn" data-i18n="start" disabled></button>
     <span id="pickStatus" aria-live="polite"></span>
   </div>
 </section>
@@ -209,18 +333,23 @@
 <!-- 2. 游戏 -->
 <section id="play" class="screen" hidden>
   <div class="topbar">
-    <button class="btn ghost" id="quitBtn">换主题</button>
+    <button class="btn ghost" id="quitBtn" data-i18n="change"></button>
     <div class="progress">
       <span id="counter"></span>
       <ol class="frames" id="frames" aria-hidden="true"></ol>
     </div>
   </div>
-  <div class="stage">
-    <div class="msg" id="stageMsg">加载中…</div>
-    <img id="still" alt="电影剧照">
+
+  <div class="theater">
+    <div class="valance" aria-hidden="true"></div>
+    <div class="stage">
+      <div class="bg" id="stageBg" aria-hidden="true"></div>
+      <div class="msg" id="stageMsg"></div>
+      <img id="still" alt="">
+    </div>
   </div>
   <div class="controls">
-    <button class="btn" id="nextBtn">下一张</button>
+    <button class="btn" id="nextBtn" data-i18n="next"></button>
   </div>
 
   <!-- 揭晓：电影票 -->
@@ -233,30 +362,36 @@
             <h2 id="revTitle"></h2>
           </div>
           <div class="ticket-stub">
-            <small>上映</small>
+            <small data-i18n="released"></small>
             <strong id="revYear"></strong>
+            <div class="barcode" aria-hidden="true"></div>
           </div>
         </div>
       </div>
-      <button class="btn" id="revNext">下一张</button>
+      <button class="btn" id="revNext"></button>
     </div>
   </div>
 </section>
 
 <!-- 3. 结束 -->
 <section id="end" class="screen" hidden>
-  <h2 class="end-title">散场了</h2>
-  <p class="end-sub">这一局的 5 部片子</p>
+  <h2 class="end-title" data-i18n="endTitle"></h2>
+  <p class="end-sub" id="endSub"></p>
   <ol class="recap" id="recap"></ol>
   <div class="row">
-    <button class="btn" id="againBtn">再来一局</button>
-    <button class="btn ghost" id="homeBtn">换主题</button>
+    <button class="btn" id="againBtn" data-i18n="again"></button>
+    <button class="btn ghost" id="homeBtn" data-i18n="change"></button>
   </div>
 </section>
 
+<!-- 页脚：每个页面都会显示 -->
+<footer class="foot">
+  <span class="pill"><span data-i18n="foot"></span><span id="contact"></span></span>
+</footer>
+
 <script>
 /* =====================================================================
-   设置区
+   设置区 / Impostazioni
    图片放在：images/<主题id>/01.jpg ~ 10.jpg
    编号 = 下面每个主题里电影的顺序（第 1 部对应 01，第 10 部对应 10）
    例：images/marvel/01.jpg 就是《复仇者联盟4：终局之战》的剧照
@@ -266,90 +401,145 @@ const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp'];  // 会按顺序尝试；只�
 const ROUNDS = 5;   // 每局抽几张
 const PICKS  = 2;   // 要选几个主题
 
+/* 页脚联系方式：改这里就行（中文 / 意大利语通用） */
+const CONTACT_TEXT = '@南南';   // 想写成 "@南南（小红书）" 之类的都可以
+const CONTACT_URL  = '';        // 有主页链接就填上，比如 'https://...'；不填就只显示文字
+
+/* 界面文字。想改哪句话，直接改这里 */
+const I18N = {
+  zh: {
+    title:    '看图猜电影',
+    intro:    '选两个主题，从里面随机抽 5 张剧照。先看图猜片名，再点下一张揭晓答案。',
+    start:    '开始放映',
+    change:   '换主题',
+    next:     '下一张',
+    result:   '看结果',
+    again:    '再来一局',
+    endTitle: '散场啦 🍿',
+    endSub:   n => '这一局的 ' + n + ' 部片子',
+    released: '上映',
+    foot:     '🎬 有任何问题，可以找',
+    stamp:    '已选',
+    count:    n => n + ' 部',
+    pickNone: n => '先选 ' + n + ' 个主题',
+    pickSome: (names, left) => '已选 ' + names.join('、') + '，再选 ' + left + ' 个',
+    join:     ' + ',
+    counter:  (i, n) => '第 ' + i + ' 张 / 共 ' + n + ' 张',
+    alt:      i => '第 ' + i + ' 张电影剧照',
+    loading:  '加载中…',
+    missing:  p => '找不到图片：' + p,
+    q:        ['《', '》'],
+  },
+  it: {
+    title:    'Indovina il film',
+    intro:    'Scegli due temi: peschiamo 5 fotogrammi a caso. Guarda l’immagine e indovina il titolo, poi premi «Avanti» per scoprire la risposta.',
+    start:    'Inizia la proiezione',
+    change:   'Cambia tema',
+    next:     'Avanti',
+    result:   'Vedi il risultato',
+    again:    'Un’altra partita',
+    endTitle: 'Sipario! 🍿',
+    endSub:   n => 'I ' + n + ' film di questa partita',
+    released: 'Uscita',
+    foot:     '🎬 Per qualsiasi domanda, scrivi a',
+    stamp:    'Scelto',
+    count:    n => n + ' film',
+    pickNone: n => 'Scegli prima ' + n + ' temi',
+    pickSome: (names, left) => 'Scelti: ' + names.join(', ') + ' — ' + (left === 1 ? 'ne manca 1' : 'ne mancano ' + left),
+    join:     ' + ',
+    counter:  (i, n) => 'Fotogramma ' + i + ' di ' + n,
+    alt:      i => 'Fotogramma del film n. ' + i,
+    loading:  'Caricamento…',
+    missing:  p => 'Immagine non trovata: ' + p,
+    q:        ['«', '»'],
+  },
+};
+
+/* 主题与电影：['中文片名', 年份, '意大利语片名'] */
 const THEMES = [
-  { id: 'marvel', emoji: '🦸', name: '好贵的电影特效', color: '#E5566B', movies: [
-    ['复仇者联盟4：终局之战', 2019],
-    ['复仇者联盟3：无限战争', 2018],
-    ['蜘蛛侠：英雄无归', 2021],
-    ['复仇者联盟1', 2012],
-    ['复仇者联盟2：奥创纪元', 2015],
-    ['黑豹', 2018],
-    ['死侍与金刚狼', 2024],
-    ['钢铁侠3', 2013],
-    ['美国队长3：内战', 2016],
-    ['蚁人', 2015],
+  { id: 'marvel', emoji: '🦸', name: '好贵的电影特效', nameIt: 'Effetti speciali da milioni', color: '#FF9AAA', movies: [
+    ['复仇者联盟4：终局之战', 2019, 'Avengers: Endgame'],
+    ['复仇者联盟3：无限战争', 2018, 'Avengers: Infinity War'],
+    ['蜘蛛侠：英雄无归', 2021, 'Spider-Man: No Way Home'],
+    ['复仇者联盟1', 2012, 'The Avengers'],
+    ['复仇者联盟2：奥创纪元', 2015, 'Avengers: Age of Ultron'],
+    ['黑豹', 2018, 'Black Panther'],
+    ['死侍与金刚狼', 2024, 'Deadpool & Wolverine'],
+    ['钢铁侠3', 2013, 'Iron Man 3'],
+    ['美国队长3：内战', 2016, 'Captain America: Civil War'],
+    ['蚁人', 2015, 'Ant-Man'],
   ]},
-  { id: 'hk', emoji: '🇭🇰', name: '一开口就是经典台词', color: '#F5C048', movies: [
-    ['无间道', 2002],
-    ['功夫', 2004],
-    ['少林足球', 2001],
-    ['英雄本色', 1986],
-    ['警察故事', 1985],
-    ['A计划', 1983],
-    ['赌神', 1989],
-    ['霸王别姬', 1993],
-    ['甜蜜蜜', 1996],
-    ['食神', 1996],
+  { id: 'hk', emoji: '🇭🇰', name: '一开口就是经典台词', nameIt: 'Battute già leggendarie', color: '#FFD77E', movies: [
+    ['无间道', 2002, 'Infernal Affairs'],
+    ['功夫', 2004, 'Kung Fu Hustle'],
+    ['少林足球', 2001, 'Shaolin Soccer'],
+    ['英雄本色', 1986, 'A Better Tomorrow'],
+    ['警察故事', 1985, 'Police Story'],
+    ['A计划', 1983, 'Project A'],
+    ['赌神', 1989, 'God of Gamblers'],
+    ['霸王别姬', 1993, 'Addio mia concubina'],
+    ['甜蜜蜜', 1996, 'Comrades: Almost a Love Story'],
+    ['食神', 1996, 'The God of Cookery'],
   ]},
-  { id: 'world', emoji: '🌍', name: '你不会真没看过吧', color: '#62AEEA', movies: [
-    ['泰坦尼克号', 1997],
-    ['阿凡达', 2009],
-    ['闻香识女人', 1992],
-    ['哈利·波特与魔法石', 2001],
-    ['教父', 1972],
-    ['肖申克的救赎', 1994],
-    ['黑客帝国', 1999],
-    ['侏罗纪公园', 1993],
-    ['阿甘正传', 1994],
-    ['绿皮书', 2018],
+  { id: 'world', emoji: '🌍', name: '你不会真没看过吧', nameIt: 'Non dirmi che non l’hai visto!', color: '#9DCBFF', movies: [
+    ['泰坦尼克号', 1997, 'Titanic'],
+    ['阿凡达', 2009, 'Avatar'],
+    ['闻香识女人', 1992, 'Scent of a Woman – Profumo di donna'],
+    ['哈利·波特与魔法石', 2001, 'Harry Potter e la pietra filosofale'],
+    ['教父', 1972, 'Il padrino'],
+    ['肖申克的救赎', 1994, 'Le ali della libertà'],
+    ['黑客帝国', 1999, 'Matrix'],
+    ['侏罗纪公园', 1993, 'Jurassic Park'],
+    ['阿甘正传', 1994, 'Forrest Gump'],
+    ['绿皮书', 2018, 'Green Book'],
   ]},
-  { id: 'anime', emoji: '🌸', name: '二次元DNA报警', color: '#F594BC', movies: [
-    ['你的名字', 2016],
-    ['千与千寻', 2001],
-    ['鬼灭之刃：无限列车篇', 2020],
-    ['哈尔的移动城堡', 2004],
-    ['天气之子', 2019],
-    ['龙珠超布罗利', 2018],
-    ['龙猫', 1988],
-    ['航海王：红发歌姬', 2022],
-    ['灌篮高手 The First Slam Dunk', 2022],
-    ['名侦探柯南：贝克街的亡灵', 2002],
+  { id: 'anime', emoji: '🌸', name: '二次元DNA报警', nameIt: 'Allarme DNA otaku', color: '#FFB9DB', movies: [
+    ['你的名字', 2016, 'Your Name.'],
+    ['千与千寻', 2001, 'La città incantata'],
+    ['鬼灭之刃：无限列车篇', 2020, 'Demon Slayer: Il treno Mugen'],
+    ['哈尔的移动城堡', 2004, 'Il castello errante di Howl'],
+    ['天气之子', 2019, 'Weathering with You'],
+    ['龙珠超布罗利', 2018, 'Dragon Ball Super: Broly'],
+    ['龙猫', 1988, 'Il mio vicino Totoro'],
+    ['航海王：红发歌姬', 2022, 'One Piece Film: Red'],
+    ['灌篮高手 The First Slam Dunk', 2022, 'The First Slam Dunk'],
+    ['名侦探柯南：贝克街的亡灵', 2002, 'Detective Conan: Il fantasma di Baker Street'],
   ]},
-  { id: 'china', emoji: '🇨🇳', name: '中国人DNA吧？', color: '#F2854A', movies: [
-    ['哪吒之魔童闹海', 2025],
-    ['战狼2', 2017],
-    ['你好，李焕英', 2021],
-    ['西红柿首富', 2018],
-    ['流浪地球', 2019],
-    ['满江红', 2023],
-    ['唐人街探案', 2015],
-    ['美人鱼', 2016],
-    ['让子弹飞', 2010],
-    ['夏洛特烦恼', 2015],
+  { id: 'china', emoji: '🇨🇳', name: '中国人DNA吧？', nameIt: 'Cinema cinese: ce l’hai nel DNA?', color: '#FFB08A', movies: [
+    ['哪吒之魔童闹海', 2025, 'Ne Zha 2'],
+    ['战狼2', 2017, 'Wolf Warrior 2'],
+    ['你好，李焕英', 2021, 'Hi, Mom'],
+    ['西红柿首富', 2018, 'Hello, Mr. Billionaire'],
+    ['流浪地球', 2019, 'The Wandering Earth'],
+    ['满江红', 2023, 'Full River Red'],
+    ['唐人街探案', 2015, 'Detective Chinatown'],
+    ['美人鱼', 2016, 'The Mermaid'],
+    ['让子弹飞', 2010, 'Let the Bullets Fly'],
+    ['夏洛特烦恼', 2015, 'Goodbye Mr. Loser'],
   ]},
-  { id: 'disney', emoji: '🏰', name: '好像童年余额不足了', color: '#A58BF0', movies: [
-    ['疯狂动物城2', 2025],
-    ['头脑特工队2', 2024],
-    ['怪兽电力公司', 2001],
-    ['冰雪奇缘2', 2019],
-    ['寻梦环游记', 2017],
-    ['飞屋环游记', 2009],
-    ['玩具总动员4', 2019],
-    ['赛车总动员', 2008],
-    ['海底总动员2：多莉去哪儿', 2016],
-    ['海洋奇缘2', 2024],
+  { id: 'disney', emoji: '🏰', name: '好像童年余额不足了', nameIt: 'Saldo infanzia in esaurimento', color: '#C9B8FF', movies: [
+    ['疯狂动物城2', 2025, 'Zootropolis 2'],
+    ['头脑特工队2', 2024, 'Inside Out 2'],
+    ['怪兽电力公司', 2001, 'Monsters & Co.'],
+    ['冰雪奇缘2', 2019, 'Frozen II: Il segreto di Arendelle'],
+    ['寻梦环游记', 2017, 'Coco'],
+    ['飞屋环游记', 2009, 'Up'],
+    ['玩具总动员4', 2019, 'Toy Story 4'],
+    ['赛车总动员', 2008, 'Cars – Motori ruggenti'],
+    ['海底总动员2：多莉去哪儿', 2016, 'Alla ricerca di Dory'],
+    ['海洋奇缘2', 2024, 'Oceania 2'],
   ]},
-  { id: 'europe', emoji: '🇪🇺', name: '欧洲人又开始整活了', color: '#5CC49A', movies: [
-    ['海上钢琴师', 1998],
-    ['请以你的名字呼唤我', 2017],
-    ['憨豆特工', 2003],
-    ['这个杀手不太冷', 1994],
-    ['美丽人生', 1997],
-    ['波斯语课', 2020],
-    ['盗梦空间', 2010],
-    ['惊天魔盗团', 2013],
-    ['海蒂和爷爷', 2015],
-    ['触不可及', 2011],
+  { id: 'europe', emoji: '🇪🇺', name: '欧洲人又开始整活了', nameIt: 'Gli europei fanno di nuovo i matti', color: '#94E2C2', movies: [
+    ['海上钢琴师', 1998, 'La leggenda del pianista sull’oceano'],
+    ['请以你的名字呼唤我', 2017, 'Chiamami col tuo nome'],
+    ['憨豆特工', 2003, 'Johnny English'],
+    ['这个杀手不太冷', 1994, 'Léon'],
+    ['美丽人生', 1997, 'La vita è bella'],
+    ['波斯语课', 2020, 'Lezioni di persiano'],
+    ['盗梦空间', 2010, 'Inception'],
+    ['惊天魔盗团', 2013, 'Now You See Me – I maghi del crimine'],
+    ['海蒂和爷爷', 2015, 'Heidi'],
+    ['触不可及', 2011, 'Quasi amici'],
   ]},
 ];
 
@@ -357,7 +547,63 @@ const THEMES = [
    程序（一般不用改）
    ===================================================================== */
 const $ = id => document.getElementById(id);
-const state = { picked: [], round: [], idx: 0, token: 0 };
+const state = { picked: [], round: [], idx: 0, token: 0, msg: null };
+
+/* ---------- 语言 ---------- */
+let LANG = ((navigator.language || '').toLowerCase().indexOf('it') === 0) ? 'it' : 'zh';   // 默认：浏览器是意大利语就用意大利语
+try {
+  const saved = localStorage.getItem('quizLang');
+  if (saved === 'zh' || saved === 'it') LANG = saved;
+} catch (e) {}
+
+const T = () => I18N[LANG];
+const themeName  = t  => LANG === 'it' ? t.nameIt  : t.name;
+const movieTitle = it => LANG === 'it' ? it.titleIt : it.title;
+const quoted     = it => T().q[0] + movieTitle(it) + T().q[1];
+
+function setLang(l) {
+  LANG = l;
+  try { localStorage.setItem('quizLang', l); } catch (e) {}
+  applyLang();
+}
+
+function applyLang() {
+  const t = T();
+  document.documentElement.lang = LANG === 'it' ? 'it' : 'zh-CN';
+  document.title = t.title;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t[el.dataset.i18n]; });
+  document.querySelectorAll('.lang button').forEach(b =>
+    b.setAttribute('aria-pressed', b.dataset.lang === LANG));
+  document.querySelectorAll('.tk-wrap').forEach(el => {
+    const th = THEMES.find(x => x.id === el.dataset.id);
+    el.querySelector('.nm').textContent = themeName(th);
+    el.querySelector('.ct').textContent = t.count(th.movies.length);
+    el.dataset.stamp = t.stamp;
+  });
+  syncPick();
+  if (!$('play').hidden) {
+    renderFrames();
+    $('still').alt = t.alt(state.idx + 1);
+    renderMsg();
+    if (!$('reveal').hidden) fillReveal();
+  }
+  if (!$('end').hidden) renderRecap();
+}
+
+/* ---------- 页脚 ---------- */
+function renderFooter() {
+  const box = $('contact');
+  if (CONTACT_URL) {
+    const a = document.createElement('a');
+    a.href = CONTACT_URL; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = CONTACT_TEXT;
+    box.appendChild(a);
+  } else {
+    const b = document.createElement('b');
+    b.textContent = CONTACT_TEXT;
+    box.appendChild(b);
+  }
+}
 
 /* ---------- 选主题 ---------- */
 function renderThemes() {
@@ -370,8 +616,8 @@ function renderThemes() {
     li.innerHTML =
       '<button type="button" class="tk" aria-pressed="false">' +
       '<span class="emo">' + t.emoji + '</span>' +
-      '<span class="nm">' + t.name + '</span>' +
-      '<span class="ct">' + t.movies.length + ' 部</span></button>';
+      '<span class="nm"></span>' +
+      '<span class="ct"></span></button>';
     li.querySelector('button').addEventListener('click', () => toggleTheme(t.id));
     grid.appendChild(li);
   });
@@ -389,17 +635,18 @@ function toggleTheme(id) {
 }
 
 function syncPick() {
+  const t = T();
   document.querySelectorAll('.tk-wrap').forEach(el => {
     const on = state.picked.includes(el.dataset.id);
     el.classList.toggle('on', on);
     el.querySelector('button').setAttribute('aria-pressed', on);
   });
-  const names = state.picked.map(id => THEMES.find(t => t.id === id).name);
+  const names = state.picked.map(id => themeName(THEMES.find(x => x.id === id)));
   const left = PICKS - names.length;
   $('pickStatus').textContent =
-    left === PICKS ? '先选 ' + PICKS + ' 个主题' :
-    left > 0 ? '已选 ' + names.join('、') + '，再选 ' + left + ' 个' :
-    names.join(' + ');
+    left === PICKS ? t.pickNone(PICKS) :
+    left > 0 ? t.pickSome(names, left) :
+    names.join(t.join);
   $('startBtn').disabled = left > 0;
 }
 
@@ -417,10 +664,10 @@ function buildRound() {
   const pool = [];
   state.picked.forEach(id => {
     const t = THEMES.find(x => x.id === id);
-    t.movies.forEach(([title, year], k) => {
+    t.movies.forEach(([title, year, titleIt], k) => {
       if (seen.has(title)) return;
       seen.add(title);
-      pool.push({ title, year, theme: t, n: k + 1 });
+      pool.push({ title, titleIt, year, theme: t, n: k + 1 });
     });
   });
   return shuffle(pool).slice(0, ROUNDS);
@@ -478,43 +725,84 @@ function renderFrames() {
     li.className = i < state.idx ? 'done' : i === state.idx ? 'now' : '';
     ol.appendChild(li);
   });
-  $('counter').textContent = '第 ' + (state.idx + 1) + ' 张 / 共 ' + state.round.length + ' 张';
+  $('counter').textContent = T().counter(state.idx + 1, state.round.length);
+}
+
+function renderMsg() {
+  const el = $('stageMsg'), m = state.msg;
+  if (!m) { el.hidden = true; return; }
+  el.hidden = false;
+  el.textContent = m.k === 'loading' ? T().loading : T().missing(m.p);
 }
 
 async function showRound() {
   const item = state.round[state.idx];
   const token = ++state.token;
-  const still = $('still'), msg = $('stageMsg');
+  const still = $('still'), bg = $('stageBg');
   renderFrames();
   $('reveal').hidden = true;
   still.classList.remove('ready');
+  bg.classList.remove('ready');
   still.removeAttribute('src');
-  still.alt = '第 ' + (state.idx + 1) + ' 张电影剧照';
-  msg.hidden = false;
-  msg.textContent = '加载中…';
+  bg.style.backgroundImage = '';
+  still.alt = T().alt(state.idx + 1);
+  state.msg = { k: 'loading' };
+  renderMsg();
 
   const url = await loadImage(item);
   if (token !== state.token) return;   // 期间已经换题或退出
   if (!url) {
-    msg.textContent = '找不到图片：' + imagePath(item, IMAGE_EXTS[0]);
+    state.msg = { k: 'missing', p: imagePath(item, IMAGE_EXTS[0]) };
+    renderMsg();
     return;
   }
-  still.onload = () => { msg.hidden = true; still.classList.add('ready'); };
+  still.onload = () => {
+    state.msg = null;
+    renderMsg();
+    still.classList.add('ready');
+    bg.classList.add('ready');
+  };
+  bg.style.backgroundImage = 'url("' + url + '")';
   still.src = url;
 }
 
-function reveal() {
-  const it = state.round[state.idx];
+/* 揭晓时撒一把小星星 */
+function burst(color) {
   const wrap = $('ticketWrap');
-  wrap.style.setProperty('--paper', it.theme.color);
-  $('revFrom').textContent = it.theme.emoji + ' ' + it.theme.name;
-  $('revTitle').textContent = '《' + it.title + '》';
+  wrap.querySelectorAll('.spark').forEach(s => s.remove());
+  const marks = ['✦', '✿', '★', '♥', '✧'];
+  for (let i = 0; i < 16; i++) {
+    const s = document.createElement('i');
+    const a = Math.random() * Math.PI * 2;
+    const d = 110 + Math.random() * 150;
+    s.className = 'spark';
+    s.textContent = marks[i % marks.length];
+    s.style.color = i % 3 === 0 ? '#fff' : color;
+    s.style.setProperty('--dx', Math.round(Math.cos(a) * d) + 'px');
+    s.style.setProperty('--dy', Math.round(Math.sin(a) * d * .7) + 'px');
+    s.style.setProperty('--rot', Math.round(Math.random() * 300 - 150) + 'deg');
+    wrap.appendChild(s);
+    setTimeout(() => s.remove(), 1400);
+  }
+}
+
+function fillReveal() {
+  const it = state.round[state.idx];
+  $('ticketWrap').style.setProperty('--paper', it.theme.color);
+  $('revFrom').textContent = it.theme.emoji + ' ' + themeName(it.theme);
+  $('revTitle').textContent = quoted(it);
   $('revYear').textContent = it.year;
-  $('revNext').textContent = state.idx === state.round.length - 1 ? '看结果' : '下一张';
+  $('revNext').textContent = state.idx === state.round.length - 1 ? T().result : T().next;
+}
+
+function reveal() {
+  const wrap = $('ticketWrap');
+  fillReveal();
   wrap.style.animation = 'none';
   void wrap.offsetWidth;            // 让电影票每次都重新“打印”一遍
   wrap.style.animation = '';
   $('reveal').hidden = false;
+  burst(state.round[state.idx].theme.color);
   $('revNext').focus();
 }
 
@@ -526,8 +814,8 @@ function advance() {
   $('nextBtn').focus();
 }
 
-function showEnd() {
-  state.token++;
+function renderRecap() {
+  $('endSub').textContent = T().endSub(state.round.length);
   const ol = $('recap');
   ol.innerHTML = '';
   state.round.forEach(it => {
@@ -535,13 +823,18 @@ function showEnd() {
     li.style.setProperty('--paper', it.theme.color);
     const t = document.createElement('span');
     t.className = 't';
-    t.textContent = it.theme.emoji + ' 《' + it.title + '》';
+    t.textContent = it.theme.emoji + ' ' + quoted(it);
     const y = document.createElement('span');
     y.className = 'y';
     y.textContent = it.year;
     li.append(t, y);
     ol.appendChild(li);
   });
+}
+
+function showEnd() {
+  state.token++;
+  renderRecap();
   show('end');
   $('againBtn').focus();
 }
@@ -559,9 +852,12 @@ $('revNext').addEventListener('click', advance);
 $('quitBtn').addEventListener('click', goHome);
 $('againBtn').addEventListener('click', startGame);
 $('homeBtn').addEventListener('click', goHome);
+document.querySelectorAll('.lang button').forEach(b =>
+  b.addEventListener('click', () => setLang(b.dataset.lang)));
 
+renderFooter();
 renderThemes();
-syncPick();
+applyLang();
 </script>
 </body>
 </html>
