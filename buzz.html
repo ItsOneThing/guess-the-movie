@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>抢答器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --milk: #F3EFFF;
+    --ink: #2E2453;
+    --ink-deep: #1B1436;
+    --dim: #7A7398;
+    --line: rgba(46, 36, 83, .14);
+    --go: #38C172;
+    --go-deep: #279C5A;
+    --wait: #FFB020;
+    --display: "ZCOOL KuaiLe", "YouYuan", "幼圆", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    --body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  html[lang="it"] {
+    --display: "Fredoka", "Nunito", "Trebuchet MS", system-ui, sans-serif;
+    --body: "Noto Sans SC", "Nunito", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { color-scheme: light; }
+  body {
+    margin: 0; min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    background-color: var(--milk);
+    background-image:
+      radial-gradient(60% 38% at 0% 0%, rgba(255, 143, 163, .25), transparent 70%),
+      radial-gradient(50% 36% at 100% 6%, rgba(120, 190, 255, .28), transparent 70%);
+    color: var(--ink); font-family: var(--body); line-height: 1.6;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .wrap { flex: 1; width: 100%; max-width: 460px; margin: 0 auto; padding: 28px 22px 32px; display: flex; flex-direction: column; }
+  h1 { margin: 0 0 4px; font-family: var(--display); font-weight: 400; font-size: clamp(30px, 9vw, 40px); }
+  html[lang="it"] h1 { font-weight: 600; }
+  .sub { margin: 0 0 26px; color: var(--dim); font-size: 15px; }
+
+  .lang { position: absolute; top: 16px; right: 16px; display: inline-flex; gap: 2px; padding: 4px; background: #fff; border: 1.5px solid var(--line); border-radius: 999px; box-shadow: 0 3px 0 rgba(46,36,83,.12); }
+  .lang button { font: inherit; font-size: 13px; font-weight: 500; padding: 4px 12px; border: 0; border-radius: 999px; background: transparent; color: var(--dim); cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+
+  label { display: block; font-size: 14px; color: var(--dim); margin: 16px 0 6px; }
+  input {
+    width: 100%; font: inherit; font-size: 20px; padding: 14px 16px;
+    border: 1.5px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink);
+  }
+  input:focus-visible { outline: 3px solid var(--ink); outline-offset: 1px; }
+  #roomInput { text-transform: uppercase; letter-spacing: .08em; font-family: var(--display); }
+
+  .btn {
+    font: inherit; font-size: 18px; font-weight: 700; letter-spacing: .04em;
+    padding: 15px 20px; border: 0; border-radius: 999px; margin-top: 22px;
+    background: var(--ink); color: #fff; cursor: pointer; width: 100%;
+    box-shadow: 0 5px 0 var(--ink-deep), 0 14px 22px rgba(46, 36, 83, .22);
+    transition: transform .12s, box-shadow .12s, opacity .2s;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink-deep); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .err { margin-top: 14px; color: #C0396B; font-size: 14px; min-height: 1.4em; }
+
+  /* ---------- 抢答画面 ---------- */
+  .arena { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; text-align: center; }
+  .hello { font-size: 15px; color: var(--dim); }
+  .hello b { color: var(--ink); }
+  .score-pill { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 18px; background: #fff; border-radius: 999px; border: 1.5px solid var(--line); }
+  .score-pill .n { font-family: var(--display); font-size: 22px; }
+
+  .buzzbtn {
+    width: min(78vw, 280px); aspect-ratio: 1; border-radius: 50%; border: 0;
+    font: inherit; font-family: var(--display); font-size: 34px; color: #fff;
+    background: radial-gradient(circle at 35% 30%, #ff8fa3, var(--go) 55%);
+    box-shadow: 0 10px 0 var(--go-deep), 0 22px 40px rgba(56, 193, 114, .35);
+    cursor: pointer; transition: transform .1s, box-shadow .1s, opacity .2s, background .2s;
+  }
+  .buzzbtn:active { transform: translateY(8px); box-shadow: 0 2px 0 var(--go-deep); }
+  .buzzbtn:disabled {
+    cursor: not-allowed; background: #C9C2E6;
+    box-shadow: 0 10px 0 #A79FCB; opacity: .8;
+  }
+  .buzzbtn.waitlock { background: radial-gradient(circle at 35% 30%, #FFD37A, var(--wait) 55%); box-shadow: 0 10px 0 #C98A12, 0 22px 40px rgba(255,176,32,.3); }
+
+  .rank-msg { font-size: 17px; min-height: 1.6em; }
+  .rank-msg .big { font-family: var(--display); font-size: 40px; display: block; }
+
+  .foot { flex-shrink: 0; padding: 4px 20px 24px; text-align: center; color: var(--dim); font-size: 13px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="lang" role="group" aria-label="Lingua / 语言">
+  <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+  <button type="button" data-lang="it" aria-pressed="false">IT</button>
+</div>
+
+<div class="wrap">
+
+  <!-- 加入房间 -->
+  <section id="joinScreen">
+    <h1 data-i18n="title"></h1>
+    <p class="sub" data-i18n="intro"></p>
+    <label for="roomInput" data-i18n="roomLabel"></label>
+    <input id="roomInput" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    <label for="nameInput" data-i18n="nameLabel"></label>
+    <input id="nameInput" maxlength="16" autocomplete="off" spellcheck="false">
+    <button class="btn" id="joinBtn" data-i18n="joinBtn"></button>
+    <p class="err" id="joinErr"></p>
+  </section>
+
+  <!-- 抢答画面 -->
+  <section id="arenaScreen" class="arena" hidden>
+    <p class="hello"><span data-i18n="playingAs"></span> <b id="meName"></b></p>
+    <div class="score-pill"><span data-i18n="scoreLabel"></span><span class="n" id="meScore">0</span></div>
+    <button class="buzzbtn" id="buzzBtn" data-i18n="buzzGo"></button>
+    <p class="rank-msg" id="rankMsg" aria-live="polite"></p>
+  </section>
+
+</div>
+
+<footer class="foot" id="statusFoot"></footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script>
+/* =====================================================================
+   把这里的 FIREBASE_CONFIG 改成和主页面（index.html）里完全一样的那一段。
+   两个文件必须连的是同一个 Firebase 项目，才能互相看到彼此。
+   ===================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBoC9jYOUXA5ViMBK5CldzN3QV46MNCfMU",
+
+  authDomain: "movie-quiz-aa366.firebaseapp.com",
+
+  databaseURL: "https://movie-quiz-aa366-default-rtdb.europe-west1.firebasedatabase.app",
+
+  projectId: "movie-quiz-aa366",
+
+};
+
+const I18N = {
+  zh: {
+    title: '🔔 抢答器', intro: '输入主持人给的房间码和你的名字，加入这一局。',
+    roomLabel: '房间码', nameLabel: '你的名字', joinBtn: '加入',
+    errRoom: '房间码是 4 位字母数字', errName: '请输入名字',
+    errNotFound: '找不到这个房间，检查一下房间码，或者让主持人重新打开控制台', errConfig: '还没配置好抢答功能，请联系主持人',
+    playingAs: '正在游戏：', scoreLabel: '当前分数 ', buzzGo: '抢答！',
+    waitOpen: '等待主持人开始新一轮…', locked: '本轮已锁定，等待下一轮',
+    yourRank: n => n === 1 ? '你是第一个！🎉' : '你是第 ' + n + ' 个',
+    connecting: '连接中…', connected: '已连接',
+  },
+  it: {
+    title: '🔔 Buzzer', intro: 'Inserisci il codice stanza dato dal presentatore e il tuo nome.',
+    roomLabel: 'Codice stanza', nameLabel: 'Il tuo nome', joinBtn: 'Entra',
+    errRoom: 'Il codice ha 4 caratteri', errName: 'Scrivi il tuo nome',
+    errNotFound: 'Stanza non trovata: controlla il codice o chiedi al presentatore di riaprire la console', errConfig: 'Buzzer non configurato, chiedi al presentatore',
+    playingAs: 'Stai giocando come:', scoreLabel: 'Punteggio ', buzzGo: 'Premi!',
+    waitOpen: 'In attesa che il presentatore apra un nuovo turno…', locked: 'Turno bloccato, attendi il prossimo',
+    yourRank: n => n === 1 ? 'Sei il primo! 🎉' : 'Sei il numero ' + n,
+    connecting: 'Connessione…', connected: 'Connesso',
+  },
+};
+let LANG = ((navigator.language || '').toLowerCase().indexOf('it') === 0) ? 'it' : 'zh';
+try { const s = localStorage.getItem('buzzLang'); if (s === 'zh' || s === 'it') LANG = s; } catch (e) {}
+const T = () => I18N[LANG];
+const $ = id => document.getElementById(id);
+
+function setLang(l) {
+  LANG = l;
+  try { localStorage.setItem('buzzLang', l); } catch (e) {}
+  applyLang();
+}
+function applyLang() {
+  document.documentElement.lang = LANG === 'it' ? 'it' : 'zh-CN';
+  document.title = T().title;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = T()[el.dataset.i18n]; });
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === LANG));
+  renderArena();
+}
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+/* ---------- 状态 ---------- */
+const me = { db: null, room: null, pid: null, name: '', roomRef: null, locked: true, round: 0, buzzed: false, rank: null, score: 0 };
+
+function firebaseConfigured() {
+  return FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== 'REPLACE_ME' && FIREBASE_CONFIG.databaseURL;
+}
+
+function genId() {
+  return 'p' + Math.random().toString(36).slice(2, 10);
+}
+
+/* URL 里带 ?room=XXXX 的话自动填上 */
+(function prefill() {
+  const p = new URLSearchParams(location.search);
+  const r = p.get('room');
+  if (r) $('roomInput').value = r.toUpperCase();
+})();
+
+function initFirebase() {
+  if (!firebaseConfigured()) {
+    $('joinErr').textContent = T().errConfig;
+    $('joinBtn').disabled = true;
+    return false;
+  }
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    me.db = firebase.database();
+    return true;
+  } catch (e) {
+    $('joinErr').textContent = T().errConfig;
+    $('joinBtn').disabled = true;
+    return false;
+  }
+}
+
+async function join() {
+  const t = T();
+  const room = $('roomInput').value.trim().toUpperCase();
+  const name = $('nameInput').value.trim();
+  $('joinErr').textContent = '';
+  if (room.length !== 4) { $('joinErr').textContent = t.errRoom; return; }
+  if (!name) { $('joinErr').textContent = t.errName; return; }
+  if (!me.db && !initFirebase()) return;
+
+  $('joinBtn').disabled = true;
+  try {
+    const metaSnap = await me.db.ref('rooms/' + room + '/meta').get();
+    if (!metaSnap.exists()) { $('joinErr').textContent = t.errNotFound; $('joinBtn').disabled = false; return; }
+  } catch (e) {
+    $('joinErr').textContent = t.errNotFound; $('joinBtn').disabled = false; return;
+  }
+
+  me.room = room;
+  me.pid = genId();
+  me.name = name;
+  try {
+    localStorage.setItem('buzzMe', JSON.stringify({ room, pid: me.pid, name }));
+  } catch (e) {}
+
+  const ref = me.db.ref('rooms/' + room);
+  me.roomRef = ref;
+  await ref.child('players/' + me.pid).set({ name, score: 0, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+  ref.child('players/' + me.pid).onDisconnect(); // 保留玩家记录，方便中途断线重连
+
+  ref.on('value', snap => {
+    const v = snap.val() || {};
+    me.locked = v.meta ? !!v.meta.locked : true;
+    me.round  = v.meta ? (v.meta.round || 0) : 0;
+    me.score  = (v.players && v.players[me.pid] && v.players[me.pid].score) || 0;
+    const buzzesThisRound = (v.buzzes && v.buzzes[me.round]) || {};
+    me.buzzed = !!buzzesThisRound[me.pid];
+    if (me.buzzed) {
+      const order = Object.entries(buzzesThisRound).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+      me.rank = order.findIndex(([pid]) => pid === me.pid) + 1;
+    } else {
+      me.rank = null;
+    }
+    renderArena();
+  });
+
+  $('meName').textContent = name;
+  $('joinScreen').hidden = true;
+  $('arenaScreen').hidden = false;
+  renderArena();
+}
+
+function doBuzz() {
+  if (!me.roomRef || me.locked || me.buzzed) return;
+  me.roomRef.child('buzzes/' + me.round + '/' + me.pid).set({
+    name: me.name, ts: firebase.database.ServerValue.TIMESTAMP,
+  });
+}
+
+function renderArena() {
+  if ($('arenaScreen').hidden) return;
+  const t = T();
+  $('meScore').textContent = me.score;
+  const btn = $('buzzBtn');
+  const msg = $('rankMsg');
+  btn.classList.remove('waitlock');
+  if (me.locked && !me.buzzed) {
+    btn.disabled = true; btn.textContent = t.buzzGo;
+    msg.innerHTML = t.waitOpen;
+  } else if (me.buzzed) {
+    btn.disabled = true; btn.classList.add('waitlock'); btn.textContent = t.buzzGo;
+    msg.innerHTML = me.rank ? ('<span class="big">' + (me.rank === 1 ? '🥇' : me.rank === 2 ? '🥈' : me.rank === 3 ? '🥉' : '#' + me.rank) + '</span>' + t.yourRank(me.rank)) : '';
+  } else {
+    btn.disabled = false; btn.textContent = t.buzzGo;
+    msg.textContent = t.locked;
+  }
+}
+
+$('joinBtn').addEventListener('click', join);
+$('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') join(); });
+$('roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('nameInput').focus(); });
+$('buzzBtn').addEventListener('click', doBuzz);
+
+applyLang();
+initFirebase();
+
+/* 如果之前加入过同一个房间（比如手机刷新了），自动重新进入 */
+(function tryResume() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('buzzMe') || 'null'); } catch (e) {}
+  const p = new URLSearchParams(location.search);
+  const urlRoom = p.get('room');
+  if (saved && (!urlRoom || urlRoom.toUpperCase() === saved.room)) {
+    $('roomInput').value = saved.room;
+    $('nameInput').value = saved.name;
+  }
+})();
+</script>
+</body>
+</html>
