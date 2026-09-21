@@ -590,27 +590,9 @@ const ROUNDS = 5;   // 每局抽几张
 const COUNTDOWN = 3;   // 出图前倒数几秒（改成 0 就是不倒数）
 const PICKS  = 2;   // 要选几个主题
 
-/* 页脚联系方式：改这里就行（中文 / 意大利语通用） */
 const CONTACT_TEXT = '@24k纯帅';   
 const CONTACT_URL  = '';        
 
-/* =====================================================================
-   抢答器设置 / Impostazioni del buzzer
-   ---------------------------------------------------------------------
-   第 1 步：打开 https://console.firebase.google.com/ ，登录谷歌账号，
-           点「添加项目」建一个新项目（名字随便取，比如 movie-quiz）。
-   第 2 步：项目建好后，进入 Build → Realtime Database → 创建数据库，
-           地区随便选一个，规则选「测试模式 / test mode」。
-   第 3 步：项目概览页点网页图标 </> 「添加应用」，注册一个网页应用
-           （不用勾 Hosting），它会给你一段 firebaseConfig，形如：
-           { apiKey: "...", authDomain: "...", databaseURL: "...",
-             projectId: "...", ... }
-   第 4 步：把那一整段配置，原样粘贴替换掉下面的 FIREBASE_CONFIG。
-   第 5 步：把 BUZZ_PAGE_URL 改成你把 buzz.html 传到 GitHub 后的真实网址，
-           比如 https://你的用户名.github.io/仓库名/buzz.html
-   （测试模式规则 30 天后会过期，到时候去 Realtime Database → 规则
-    那页把日期延长一下，或者改成一直允许读写就行，是私人小游戏不用太担心。）
-   ===================================================================== */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBoC9jYOUXA5ViMBK5CldzN3QV46MNCfMU",
 
@@ -621,7 +603,7 @@ const FIREBASE_CONFIG = {
   projectId: "movie-quiz-aa366",
 
 };
-const BUZZ_PAGE_URL = 'https://你的用户名.github.io/仓库名/buzz.html'; // ← 改成你的 buzz.html 真实地址
+const BUZZ_PAGE_URL = 'https://itsonething.github.io/guess-the-movie/buzz.html';
 
 /* 界面文字。想改哪句话，直接改这里 */
 const I18N = {
