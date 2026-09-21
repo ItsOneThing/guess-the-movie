@@ -500,7 +500,7 @@ html[lang="it"] .spin-card h2 { font-weight: 600; font-size: 25px; }
    ===================================================================== */
 const IMAGE_DIR  = 'images';
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp'];  // 会按顺序尝试；只用一种格式的话可以删到只剩一个
-const ROUNDS = 7;   // 每局抽几张
+const ROUNDS = 5;   // 每局抽几张
 const COUNTDOWN = 3;   // 出图前倒数几秒（改成 0 就是不倒数）
 const PICKS  = 2;   // 要选几个主题
 
@@ -512,7 +512,7 @@ const CONTACT_URL  = '';
 const I18N = {
   zh: {
     title:    '看图猜电影',
-    intro:    '选两个主题，从里面随机抽 7 张剧照。先看图猜片名，再点下一张揭晓答案。',
+    intro:    '选两个主题，从里面随机抽 5 张剧照。先看图猜片名，再点下一张揭晓答案。',
     start:    '开始放映',
     buzz:     '🔔 扫码进入抢答器',
     spinBtn:   '🎡 转盘随机选',
@@ -546,7 +546,7 @@ const I18N = {
   },
   it: {
     title:    'Indovina il film',
-    intro:    'Scegli due temi: peschiamo 7 fotogrammi a caso. Guarda l’immagine e indovina il titolo, poi premi «Avanti» per scoprire la risposta.',
+    intro:    'Scegli due temi: peschiamo 5 fotogrammi a caso. Guarda l’immagine e indovina il titolo, poi premi «Avanti» per scoprire la risposta.',
     start:    'Inizia la proiezione',
     buzz:     '🔔 Scansiona per il buzzer',
     spinBtn:   '🎡 Scegli con la ruota',
