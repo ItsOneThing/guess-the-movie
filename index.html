@@ -204,7 +204,7 @@ html[lang="it"] .spin-card h2 { font-weight: 600; font-size: 25px; }
   cursor: pointer; transition: transform .15s;
 }
 .qr:hover { transform: translateY(-2px) rotate(-2deg); }
-.qr canvas, .qr svg { display: block; width: 100%; height: 100%; shape-rendering: crispEdges; }
+.qr canvas, .qr svg { display: block; width: 100% !important; height: 100% !important; shape-rendering: crispEdges; }
 .buzz .code { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .buzz .code-t { font-size: 14px; color: var(--dim); }
 .buzz .code-v {
@@ -222,7 +222,7 @@ html[lang="it"] .spin-card h2 { font-weight: 600; font-size: 25px; }
   .console-card h2 { margin: 0 36px 4px; font-family: var(--display); font-weight: 400; font-size: 28px; }
   html[lang="it"] .console-card h2 { font-weight: 600; font-size: 24px; }
   .console-room { display: flex; align-items: center; gap: 18px; margin: 18px 0 22px; padding: 16px 18px; background: var(--milk); border-radius: 18px; }
-  .console-room .qr { border: 2px solid var(--ink); }
+  .console-room .qr { width: 124px; height: 124px; border: 2px solid var(--ink); }
   .console-room .rc { flex: 1; min-width: 0; }
   .console-room .rc-label { font-size: 13px; color: var(--dim); }
   .console-room .rc-code { font-family: var(--display); font-size: 40px; letter-spacing: .06em; line-height: 1.15; }
