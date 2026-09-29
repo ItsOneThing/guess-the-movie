@@ -427,8 +427,12 @@ html[lang="it"] .spin-card h2 { font-weight: 600; font-size: 25px; }
     .spark { display: none; }
   }
 </style>
+<link rel="stylesheet" href="layout.css">
 </head>
 <body>
+<div class="split-layout">
+<main class="host-pane">
+<header class="pane-heading"><span class="pane-number">01</span><div><h2 data-i18n="hostPane"></h2><p data-i18n="hostHint"></p></div></header>
 
 <!-- 语言切换：所有页面都在右上角 -->
 <div class="langbar">
@@ -533,11 +537,17 @@ html[lang="it"] .spin-card h2 { font-weight: 600; font-size: 25px; }
   </div>
 </div>
 
+<!-- 页脚：每个页面都会显示 -->
+<footer class="foot">
+  <span class="pill"><span data-i18n="foot"></span><span id="contact"></span></span>
+</footer>
+
+</main>
+<aside class="player-pane" aria-labelledby="controlPaneTitle">
+<header class="pane-heading"><span class="pane-number">02</span><div><h2 id="controlPaneTitle" tabindex="-1" data-i18n="controlPane"></h2><p data-i18n="controlHint"></p></div><a id="playerExternal" href="buzz.html" target="_blank" rel="noopener" data-i18n="openPlayer"></a></header>
 <!-- 抢答控制台 -->
-<div class="reveal" id="buzzConsole" role="dialog" aria-modal="true" aria-labelledby="consoleTitle" hidden>
+<section class="inline-console" id="buzzConsole" aria-labelledby="controlPaneTitle">
   <div class="console-card">
-    <button class="spin-x" id="consoleClose" type="button">✕</button>
-    <h2 id="consoleTitle"></h2>
     <div class="console-status" id="consoleStatus"><span class="dot" id="consoleDot"></span><span id="consoleStatusText"></span></div>
     <div id="setupNote" class="setup-note" hidden></div>
 
@@ -564,13 +574,9 @@ html[lang="it"] .spin-card h2 { font-weight: 600; font-size: 25px; }
     <ol class="board" id="boardList"></ol>
     <p class="empty-hint" id="boardEmpty" data-i18n="boardEmpty"></p>
   </div>
+</section>
+</aside>
 </div>
-
-<!-- 页脚：每个页面都会显示 -->
-<footer class="foot">
-  <span class="pill"><span data-i18n="foot"></span><span id="contact"></span></span>
-</footer>
-
 <!-- Firebase（用来让手机和这个页面实时同步抢答/分数，见文件顶部 FIREBASE_CONFIG 说明） -->
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
@@ -623,6 +629,8 @@ const I18N = {
     title:    '看图猜电影',
     intro:    '选两个主题，从里面随机抽 5 张剧照。先看图猜片名，再点下一张揭晓答案。',
     start:    '开始放映',
+    hostPane: '电影主场', hostHint: '选择主题 · 展示剧照 · 揭晓答案',
+    controlPane: '主持人控制台', controlHint: '扫码加入 · 抢答顺序 · 玩家积分', openPlayer: '玩家入口 ↗',
     buzz:     '🔔 抢答器房间码',
     buzzHint: '点二维码打开控制台',
     spinBtn:   '🎡 转盘随机选',
@@ -671,6 +679,8 @@ const I18N = {
     title:    'Indovina il film',
     intro:    'Scegli due temi: peschiamo 5 fotogrammi a caso. Guarda l’immagine e indovina il titolo, poi premi «Avanti» per scoprire la risposta.',
     start:    'Inizia la proiezione',
+    hostPane: 'Schermo del gioco', hostHint: 'Scegli i temi · Guarda · Indovina',
+    controlPane: 'Console del presentatore', controlHint: 'QR code · Ordine di risposta · Punteggi', openPlayer: 'Giocatori ↗',
     buzz:     '🔔 Codice stanza buzzer',
     buzzHint: 'Tocca il QR per la console',
     spinBtn:   '🎡 Scegli con la ruota',
@@ -883,6 +893,7 @@ function applyLang() {
   const t = T();
   document.documentElement.lang = LANG === 'it' ? 'it' : 'zh-CN';
   document.title = t.title;
+  syncPlayerLink();
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t[el.dataset.i18n]; });
   document.querySelectorAll('.lang button').forEach(b =>
     b.setAttribute('aria-pressed', b.dataset.lang === LANG));
@@ -986,7 +997,14 @@ function buzzUrl() {
   return BUZZ_PAGE_URL + '?room=' + (buzz.code || '');
 }
 
+function syncPlayerLink() {
+  const url = new URL('buzz.html', location.href);
+  if (buzz.code) url.searchParams.set('room', buzz.code);
+  $('playerExternal').href = url.href;
+}
+
 function renderBuzzChip() {
+  syncPlayerLink();
   $('buzzCodeView').textContent = buzz.code || '----';
   drawQr($('qrOpen'), buzzUrl(), 82);
 }
@@ -1055,8 +1073,11 @@ function renderConsole() {
   $('boardEmpty').hidden = players.length > 0;
 }
 
-function openConsole() { $('buzzConsole').hidden = false; renderConsole(); }
-function closeConsole() { $('buzzConsole').hidden = true; }
+function openConsole() {
+  renderConsole();
+  $('buzzConsole').scrollIntoView({behavior:reduceMotion()?'instant':'smooth', block:'start'});
+  $('controlPaneTitle').focus({preventScroll:true});
+}
 
 /* ---------- 转盘：随机抽两个主题 ---------- */
 const SPIN_MS = 4200;                       // 转多久（毫秒）
@@ -1457,15 +1478,12 @@ $('spinClose').addEventListener('click', closeSpin);
 $('spinModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSpin(); });
 $('qrOpen').addEventListener('click', openConsole);
 $('qrOpen2').addEventListener('click', () => { if (navigator.clipboard) navigator.clipboard.writeText(buzzUrl()).catch(() => {}); });
-$('consoleClose').addEventListener('click', closeConsole);
-$('buzzConsole').addEventListener('click', e => { if (e.target === e.currentTarget) closeConsole(); });
 $('newRoundBtn').addEventListener('click', newRound);
 $('lockBtn').addEventListener('click', toggleLock);
 $('newRoomBtn').addEventListener('click', newRoom);
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (!$('spinModal').hidden) closeSpin();
-  if (!$('buzzConsole').hidden) closeConsole();
 });
 $('startBtn').addEventListener('click', startGame);
 $('nextBtn').addEventListener('click', reveal);
