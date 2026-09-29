@@ -31,7 +31,18 @@ body { background-image:radial-gradient(ellipse at 0 0, #e9e1f8, transparent 55%
 .theater { border-radius:20px; overflow:hidden; }
 .host-pane .foot { padding:8px 24px 24px; font-size:12px; }
 .player-pane { position:sticky; top:24px; overflow:hidden; }
-.player-frame { display:block; width:100%; height:calc(100dvh - 154px); min-height:600px; border:0; background:transparent; }
+ .inline-console { padding:28px; }
+.inline-console .console-card { width:100%; max-height:none; padding:0; overflow:visible; border-radius:0; box-shadow:none; background:transparent; }
+.inline-console .console-card h2 { margin:0 0 18px; font-size:28px; line-height:1.2; }
+.inline-console .console-room { background:#f5f1fa; border:1px solid var(--line); border-radius:20px; padding:20px; gap:20px; }
+.inline-console .rc-code { font-size:38px; letter-spacing:.1em; }
+.inline-console .rc-url { overflow-wrap:anywhere; }
+.inline-console .console-actions { display:flex; flex-wrap:wrap; gap:12px; }
+.inline-console .console-actions .btn { font-size:14px; padding:12px 16px; }
+.inline-console .console-sec-t { margin-top:30px; color:var(--ink); font-size:14px; font-weight:700; }
+.inline-console .empty-hint { padding:22px; border:1px dashed var(--line); border-radius:16px; background:#faf8fd; font-size:14px; }
+.inline-console .board li,.inline-console .buzz-order li { border:1px solid var(--line); border-radius:14px; box-shadow:none; }
+.host-pane .buzz { display:none; }
 body.player-page .wrap { max-width:460px; padding:64px 28px 32px; }
 body.player-page h1 { margin-bottom:12px; font-size:40px; line-height:1.15; }
 body.player-page input { border-radius:13px; background:rgba(255,255,255,.9); font-size:18px; padding:15px; }
@@ -40,14 +51,9 @@ body.player-page .btn { margin-top:26px; }
 body.player-page .buzzbtn { background:radial-gradient(circle at 35% 25%,#72d6a1,#299663 70%); }
 body.player-page .buzzbtn:disabled { background:#d6cde4; }
 body.player-page .buzzbtn.waitlock { background:radial-gradient(circle at 35% 25%,#ffda88,#eaaa37 70%); }
-body.player-page.embedded { background:transparent; }
-body.player-page.embedded .lang { display:none; }
-body.player-page.embedded .wrap { padding-top:40px; }
-body.player-page.embedded .foot { padding-bottom:28px; }
 @media (max-width:900px) {
  .split-layout { padding:14px; grid-template-columns:1fr; gap:16px; }
  .player-pane { position:static; }
- .player-frame { height:620px; min-height:0; }
  .masthead h1,html[lang="it"] .masthead h1 { font-size:clamp(36px,7vw,54px); }
 }
 @media (max-width:480px) {
@@ -63,6 +69,12 @@ body.player-page.embedded .foot { padding-bottom:28px; }
  .tk .nm,html[lang="it"] .tk .nm { font-size:19px; }
  .tk-wrap.on::after { width:30px;height:30px;right:10px;top:10px;font-size:9px; }
  .pane-heading h2 { font-size:14px; }
+ .inline-console { padding:20px 18px; }
+ .inline-console .console-room { padding:16px; gap:14px; }
  .topbar { flex-wrap:wrap; gap:16px; }
 }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition:none!important; } }
+
+/* The answer ticket covers only the movie pane so the host can still score players. */
+.host-pane { position:relative; }
+.host-pane #reveal { position:absolute; border-radius:28px; }
