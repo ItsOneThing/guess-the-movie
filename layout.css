@@ -1,0 +1,68 @@
+/* Shared cinema styling; the host and player keep their existing game logic. */
+:root { --milk:#f4f1f8; --ink:#34284c; --ink-deep:#241936; --dim:#786d88; --line:rgba(52,40,76,.13); }
+body { background-image:radial-gradient(ellipse at 0 0, #e9e1f8, transparent 55%),radial-gradient(ellipse at 100% 100%,#fce8df,transparent 55%); }
+.split-layout { width:min(1600px,100%); margin:0 auto; padding:24px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:24px; align-items:start; }
+.host-pane,.player-pane { min-width:0; background:rgba(255,255,255,.78); border:1px solid rgba(255,255,255,.9); border-radius:28px; box-shadow:0 12px 45px rgba(52,40,76,.06); }
+.pane-heading { display:flex; align-items:center; gap:12px; padding:22px 28px; border-bottom:1px solid var(--line); }
+.pane-number { display:grid; place-items:center; width:34px; height:34px; border-radius:12px; background:#eae3f4; color:var(--ink); font-size:12px; font-weight:700; flex-shrink:0; }
+.pane-heading h2 { margin:0; font:600 15px var(--body); }
+.pane-heading p { margin:3px 0 0; font-size:12px; color:var(--dim); }
+.pane-heading a { margin-left:auto; color:var(--ink); font-size:13px; text-decoration:none; border:1px solid var(--line); padding:8px 12px; border-radius:10px; white-space:nowrap; }
+.pane-heading a:hover { background:#eee8f6; }
+.host-pane .langbar { padding:18px 28px 0; }
+.host-pane .screen { padding:24px 28px 32px; }
+.masthead { margin-bottom:24px; }
+.masthead h1,html[lang="it"] .masthead h1 { font-size:clamp(36px,3.7vw,58px); line-height:1.12; letter-spacing:-.035em; }
+.masthead p { font-size:15px; line-height:1.8; }
+.tickets { gap:16px; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.tk-wrap { filter:drop-shadow(0 5px 7px rgba(52,40,76,.09)); }
+.tk-wrap.on { transform:translateY(-4px); }
+.tk { min-height:148px; padding:18px 24px; }
+.tk .nm,html[lang="it"] .tk .nm { font-size:21px; }
+.tk .emo { width:38px; height:38px; font-size:23px; }
+.tk-wrap.on::after { top:14px;right:16px;width:38px;height:38px;font-size:10px; }
+.pick-bar { margin-top:28px; gap:14px; }
+.btn { border-radius:14px; padding:13px 23px; font-size:16px; letter-spacing:0; box-shadow:0 3px 0 var(--ink-deep),0 7px 16px rgba(52,40,76,.12); }
+.btn.ghost { border-radius:12px; box-shadow:none; padding:11px 16px; }
+.btn:hover { box-shadow:0 4px 0 var(--ink-deep),0 9px 18px rgba(52,40,76,.15); }
+.lang { box-shadow:none; }
+#pickStatus { width:100%; font-size:13px; order:3; }
+.buzz { width:100%; margin-left:0; border-radius:18px; padding:14px; background:#f5f1fa; }
+.theater { border-radius:20px; overflow:hidden; }
+.host-pane .foot { padding:8px 24px 24px; font-size:12px; }
+.player-pane { position:sticky; top:24px; overflow:hidden; }
+.player-frame { display:block; width:100%; height:calc(100dvh - 154px); min-height:600px; border:0; background:transparent; }
+body.player-page .wrap { max-width:460px; padding:64px 28px 32px; }
+body.player-page h1 { margin-bottom:12px; font-size:40px; line-height:1.15; }
+body.player-page input { border-radius:13px; background:rgba(255,255,255,.9); font-size:18px; padding:15px; }
+body.player-page input:focus-visible { outline:2px solid #8f73bf; }
+body.player-page .btn { margin-top:26px; }
+body.player-page .buzzbtn { background:radial-gradient(circle at 35% 25%,#72d6a1,#299663 70%); }
+body.player-page .buzzbtn:disabled { background:#d6cde4; }
+body.player-page .buzzbtn.waitlock { background:radial-gradient(circle at 35% 25%,#ffda88,#eaaa37 70%); }
+body.player-page.embedded { background:transparent; }
+body.player-page.embedded .lang { display:none; }
+body.player-page.embedded .wrap { padding-top:40px; }
+body.player-page.embedded .foot { padding-bottom:28px; }
+@media (max-width:900px) {
+ .split-layout { padding:14px; grid-template-columns:1fr; gap:16px; }
+ .player-pane { position:static; }
+ .player-frame { height:620px; min-height:0; }
+ .masthead h1,html[lang="it"] .masthead h1 { font-size:clamp(36px,7vw,54px); }
+}
+@media (max-width:480px) {
+ .split-layout { padding:10px; }
+ .host-pane,.player-pane { border-radius:20px; }
+ .pane-heading { padding:18px; }
+ .pane-heading p { max-width:24ch; }
+ .pane-heading a { font-size:12px; padding:8px; }
+ .host-pane .screen { padding:20px 18px 26px; }
+ .host-pane .langbar { padding:16px 18px 0; }
+ .tickets { gap:12px; }
+ .tk { padding:14px 18px; min-height:166px; }
+ .tk .nm,html[lang="it"] .tk .nm { font-size:19px; }
+ .tk-wrap.on::after { width:30px;height:30px;right:10px;top:10px;font-size:9px; }
+ .pane-heading h2 { font-size:14px; }
+ .topbar { flex-wrap:wrap; gap:16px; }
+}
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition:none!important; } }

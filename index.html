@@ -427,8 +427,12 @@ html[lang="it"] .spin-card h2 { font-weight: 600; font-size: 25px; }
     .spark { display: none; }
   }
 </style>
+<link rel="stylesheet" href="layout.css">
 </head>
 <body>
+<div class="split-layout">
+<main class="host-pane">
+<header class="pane-heading"><span class="pane-number">01</span><div><h2 data-i18n="hostPane"></h2><p data-i18n="hostHint"></p></div></header>
 
 <!-- 语言切换：所有页面都在右上角 -->
 <div class="langbar">
@@ -571,6 +575,12 @@ html[lang="it"] .spin-card h2 { font-weight: 600; font-size: 25px; }
   <span class="pill"><span data-i18n="foot"></span><span id="contact"></span></span>
 </footer>
 
+</main>
+<aside class="player-pane" aria-labelledby="playerPaneTitle">
+<header class="pane-heading"><span class="pane-number">02</span><div><h2 id="playerPaneTitle" data-i18n="playerPane"></h2><p data-i18n="playerHint"></p></div><a id="playerExternal" href="buzz.html" target="_blank" rel="noopener" data-i18n="openPlayer"></a></header>
+<iframe id="playerPreview" class="player-frame" src="buzz.html?embedded=1" title="抢答器 / Buzzer"></iframe>
+</aside>
+</div>
 <!-- Firebase（用来让手机和这个页面实时同步抢答/分数，见文件顶部 FIREBASE_CONFIG 说明） -->
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
@@ -623,6 +633,8 @@ const I18N = {
     title:    '看图猜电影',
     intro:    '选两个主题，从里面随机抽 5 张剧照。先看图猜片名，再点下一张揭晓答案。',
     start:    '开始放映',
+    hostPane: '电影主场', hostHint: '选择主题 · 展示剧照 · 揭晓答案',
+    playerPane: '玩家抢答', playerHint: '房间码自动同步，输入名字即可加入', openPlayer: '单独打开 ↗',
     buzz:     '🔔 抢答器房间码',
     buzzHint: '点二维码打开控制台',
     spinBtn:   '🎡 转盘随机选',
@@ -671,6 +683,8 @@ const I18N = {
     title:    'Indovina il film',
     intro:    'Scegli due temi: peschiamo 5 fotogrammi a caso. Guarda l’immagine e indovina il titolo, poi premi «Avanti» per scoprire la risposta.',
     start:    'Inizia la proiezione',
+    hostPane: 'Schermo del gioco', hostHint: 'Scegli i temi · Guarda · Indovina',
+    playerPane: 'Buzzer del giocatore', playerHint: 'Stanza sincronizzata: inserisci il tuo nome', openPlayer: 'Apri ↗',
     buzz:     '🔔 Codice stanza buzzer',
     buzzHint: 'Tocca il QR per la console',
     spinBtn:   '🎡 Scegli con la ruota',
@@ -883,6 +897,7 @@ function applyLang() {
   const t = T();
   document.documentElement.lang = LANG === 'it' ? 'it' : 'zh-CN';
   document.title = t.title;
+  syncPlayerPreview();
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t[el.dataset.i18n]; });
   document.querySelectorAll('.lang button').forEach(b =>
     b.setAttribute('aria-pressed', b.dataset.lang === LANG));
@@ -986,7 +1001,24 @@ function buzzUrl() {
   return BUZZ_PAGE_URL + '?room=' + (buzz.code || '');
 }
 
+function syncPlayerPreview() {
+  const frame = $('playerPreview');
+  const room = buzz.code || '';
+  const url = new URL('buzz.html', location.href);
+  if (room) url.searchParams.set('room', room);
+  $('playerExternal').href = url.href;
+  if (frame.dataset.room !== room) {
+    frame.dataset.room = room;
+    url.searchParams.set('embedded', '1');
+    url.searchParams.set('lang', LANG);
+    frame.src = url.href;
+  }
+  frame.contentWindow?.postMessage({type:'movie-quiz-language', lang:LANG}, location.origin);
+}
+$('playerPreview').addEventListener('load', syncPlayerPreview);
+
 function renderBuzzChip() {
+  syncPlayerPreview();
   $('buzzCodeView').textContent = buzz.code || '----';
   drawQr($('qrOpen'), buzzUrl(), 82);
 }
